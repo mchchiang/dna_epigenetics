@@ -1,0 +1,29 @@
+
+# Ignore Mac generated files
+*.DS_Store
+
+# Ignore java class files
+*.class
+
+# Ignore mobile tools for Java
+*.mtj.tmp/
+
+# Ignore package files
+*.war
+*.ear
+
+/bin/
+
+#TeX stuff
+*.bbl
+*.blg
+*.aux
+*.gz
+*.log
+*.out
+*.toc
+Report.pdf
+*.jpg
+*.eps
+/report/template/
+/report/figure/
