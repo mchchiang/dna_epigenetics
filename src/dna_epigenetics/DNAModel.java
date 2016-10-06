@@ -128,18 +128,14 @@ public class DNAModel {
 	
 	protected void noisyConversion(int n1, double p1, double p2){
 		int s1 = dna[n1];		
-		if (p1 < 1.0/3.0){
-			if (s1 == 0){
-				setState(n1, dna[n1]+1);
-			} else if (s1 == 1){
-				if (p2 > 0.5){
-					setState(n1, dna[n1]+1);
-				} else {
-					setState(n1, dna[n1]-1);
-				}
-			} else if (s1 == 2){
-				setState(n1, dna[n1]-1);
-			}
+		if (s1 == 0 && p1 < 1.0/3.0){
+			setState(n1, dna[n1]+1);
+		} else if (s1 == 1 && p1 < 1.0/3.0){
+			setState(n1, dna[n1]+1);
+		} else if (s1 == 1 && p1 < 2.0/3.0){
+			setState(n1, dna[n1]-1);
+		} else if (s1 == 2 && p1 < 1.0/3.0){
+			setState(n1, dna[n1]-1);
 		}
 	}
 	
@@ -192,13 +188,17 @@ public class DNAModel {
 		int seed = 1;
 		String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
 				n, ratio, sweeps, run);
-		DataWriter stateWriter = new StateWriter();
-		stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
+		//DataWriter stateWriter = new StateWriter();
+		DataWriter probWriter = new ProbabilityWriter(n, sweeps);
+		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
+		probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
 		
 		DNAModel model = new DNAModel(n, ratio, sweeps, seed);
 		model.initState();
-		model.addListener(stateWriter);
+		//model.addListener(stateWriter);
+		model.addListener(probWriter);
 		model.run();
-		stateWriter.closeWriter();
+		//stateWriter.closeWriter();
+		probWriter.closeWriter();
 	}
 }
