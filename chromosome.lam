@@ -1,0 +1,190 @@
+###
+# Reference paper:
+# K. Kremer and G. S. Grest
+# Dynamics of entangled linear polymer melts: A molecular-dynamics simulation
+# J Chem Phys 92, 5057 (1990)
+###
+
+###
+# Box and units  (use LJ units and periodic boundaries)
+###
+
+units lj
+
+atom_style angle #with stiffness
+
+boundary        p p p 
+
+###
+# Pair interactions require lists of neighbours to be calculated
+###
+neighbor 1.9 bin #sets skin for neighbour list
+neigh_modify every 1 delay 1 check yes 
+
+### Generate RESTART file, SPECIAL format, not a .txt file ###
+### Useful if simulation crashes ###
+restart 1000000 DNA.restart
+#############################
+
+#processors 2 1 1 #to choose decomposition 
+
+### READ "start" data file ###
+read_data lammps_input
+######################
+
+### reset timestep ###
+reset_timestep 0 
+######################
+
+###
+# Define groups (atom type 1 is group 'all')
+###
+group all type 1 2 3 4
+group polymer type 4
+
+###
+# Dump configs + box coords
+###
+dump   1   all   custom   1000000   DNA.dump.*  id  x y z  ix iy iz
+dump_modify   1   format "%d %.5f %.5f %.5f %d %d %d"
+
+###################################################################
+# Stiffness term
+#
+# E = K * (1+cos(theta)), K>0
+#
+# specify K
+
+angle_style   cosine
+angle_coeff   1 10.0
+###################################################################
+
+###################################################################
+# Pair interaction between non-bonded atoms
+# use soft potential for equilibration
+# E = A*(1+cos(pi*r/rc)
+# specify A rc
+
+pair_style     soft 1.12246152962189
+pair_coeff * * 100.0 1.12246152962189
+###################################################################
+
+###################################################################
+# Pair interaction between bonded atoms
+# use harmonic potential for equilibration
+# E = K*(r-r0)^2
+# specify K r0
+
+bond_style   harmonic 
+bond_coeff   1   100.0   1.1 
+###################################################################
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo 1000
+thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol
+############################################################################
+
+###
+# Set up fixes
+###
+
+fix 1 all   nve   ###NVE ensemble
+fix 2 all   langevin   1.0 1.0   1.0   267 ###Langevin integrator Tstart Tstop 1/friction rndseed
+
+###
+# set timestep of integrator
+###
+timestep 0.01 #0.012
+
+###
+# run integration for a number of steps
+###
+run 1000
+
+angle_coeff   1 3.0
+
+pair_style      lj/cut 1.12246152962189
+pair_modify     shift yes
+pair_coeff      * * 1.0 1.0 1.12246152962189
+
+bond_style   fene
+
+special_bonds fene #<=== I M P O R T A N T (new command)
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+run 1000
+ 
+write_data DNA.out nocoeff
+
+variable restarttime equal 0
+variable seed equal 7532155
+
+# now start recolouring
+
+variable colourstep loop 20000
+label loop
+
+variable restarttime equal (${restarttime}+1000)
+variable seed equal (${seed}+100)
+
+clear
+
+shell ./recolour.3 <in.recolour
+
+units lj
+atom_style angle
+boundary        p p p 
+
+neighbor 0.3 bin 
+neigh_modify every 1 delay 1 check yes 
+ 
+read_data DNA.in 
+
+reset_timestep ${restarttime}
+
+dump   id all atom 10001 dump.DNA
+
+angle_style   cosine
+angle_coeff   1 3.0
+
+pair_style      lj/cut 1.12246152962189
+
+pair_modify     shift yes
+
+pair_coeff      * * 1.0 1.0 1.12246152962189
+pair_coeff      2 4 3.0 1.0 1.8
+pair_coeff      3 4 3.0 1.0 1.8
+pair_coeff      3 3 5.0 1.0 1.8
+
+
+bond_style   fene
+
+special_bonds fene #<=== I M P O R T A N T (new command)
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+###
+# Set up fixes
+###
+
+fix 1 all   nve  
+fix 2 all   langevin   1.0 1.0   1.0  ${seed}
+
+timestep 0.01 #0.012
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo 1000
+thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol
+############################################################################
+
+run 1000
+
+write_data DNA.out nocoeff
+
+shell cat dump.out dump.DNA > out
+shell mv out dump.out
+
+next colourstep
+
+jump DNAbindingproteins.lam loop

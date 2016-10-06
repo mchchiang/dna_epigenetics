@@ -8,11 +8,21 @@
 # Ignore mobile tools for Java
 *.mtj.tmp/
 
+# Ignore object files
+*.o
+
 # Ignore package files
 *.war
 *.ear
 
-/bin/
+# Ignore ~ files
+*~
+
+# Ignore data files
+*.dat
+*.out
+
+**/bin/*
 
 #TeX stuff
 *.bbl
@@ -22,8 +32,7 @@
 *.log
 *.out
 *.toc
-Report.pdf
 *.jpg
 *.eps
-/report/template/
-/report/figure/
+**/report/*
+**/report/*
