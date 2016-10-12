@@ -16,6 +16,8 @@ public class LAMMPSIO {
 	private boolean readData = false;
 	private boolean computedPairwiseDistance = false;
 	private final double pi = Math.PI;
+	private String header = 
+			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 	
 	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
 			double lx, double ly, double lz, int seed){
@@ -36,19 +38,23 @@ public class LAMMPSIO {
 		for (int i = 0; i < dimension; i++){
 			atomPosition[0][i] = 0.0;
 		}
+		atomPosition[0][0] = -lx/2.0+10.0;
 		
 		double x, y, z, r, costheta, sintheta, phi;
 		
 		for (int i = 1; i < numOfAtoms; i++){
 			do {
-				r = rand.nextDouble();
+				/*r = rand.nextDouble();
 				costheta = 1.0 - 2.0 * r;
 				sintheta = Math.sqrt(1 - costheta*costheta);
 				r = rand.nextDouble();
 				phi = 2.0 * pi * r;
 				x = atomPosition[i-1][0] + sintheta * Math.cos(phi);
 				y = atomPosition[i-1][1] + sintheta * Math.sin(phi);
-				z = atomPosition[i-1][2] + costheta;
+				z = atomPosition[i-1][2] + costheta;*/
+				x = atomPosition[i-1][0] + 1.0;
+				y = atomPosition[i-1][1];
+				z = atomPosition[i-1][2];
 			} while (Math.abs(x) > lx/2.0 ||
 					 Math.abs(y) > ly/2.0 || 
 					 Math.abs(z) > lz/2.0);
@@ -65,7 +71,8 @@ public class LAMMPSIO {
 
 	public void readAtomData(String filename) throws IOException {	
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
-
+		header = reader.readLine();
+		
 		String line;
 		String [] args;
 
@@ -220,8 +227,7 @@ public class LAMMPSIO {
 		PrintWriter writer = new PrintWriter(
 				new BufferedWriter(new FileWriter(filename)));
 		//write header section of LAMMPS input files
-		writer.println(
-				"LAMMPS data file from restart file: timestep = 0,\tprocs = 1");
+		writer.println(header);
 		writer.println();
 		writer.printf("%d atoms\n", numOfAtoms);
 		writer.printf("%d atom types\n", typesOfAtoms);
@@ -242,12 +248,14 @@ public class LAMMPSIO {
 		//print atoms' positions
 		writer.printf("\nAtoms\n\n");
 		for (int i = 0; i < numOfAtoms; i++){
+			System.out.printf("%d ", atomType[i]-1);
 			writer.printf("%d %d %d %.16f %.16f %.16f %d %d %d\n",
 					i+1, 1, atomType[i], 
 					atomPosition[i][0], atomPosition[i][1], atomPosition[i][2],
 					atomBoundaryCount[i][0], atomBoundaryCount[i][1],
 					atomBoundaryCount[i][2]);
 		}
+		System.out.printf("\n");
 
 		//print atoms' velocities
 		writer.printf("\nVelocities\n\n");
@@ -299,6 +307,10 @@ public class LAMMPSIO {
 		return atomVelocity[index][comp];
 	}
 	
+	public void setAtomType(int index, int type){
+		atomType[index] = type;
+	}
+	
 	public int getAtomType(int index){
 		return atomType[index];
 	}
@@ -311,9 +323,9 @@ public class LAMMPSIO {
 		if (atom1 == atom2) return -1.0;
 		int index;
 		if (atom1 < atom2){
-			index = atom2 * (atom2+1) / 2 + atom1;
+			index = atom2 * (atom2-1) / 2 + atom1;
 		} else {
-			index = atom1 * (atom1+1) / 2 + atom2;
+			index = atom1 * (atom1-1) / 2 + atom2;
 		}
 		return pairwiseDistance[index];
 	}
@@ -328,8 +340,15 @@ public class LAMMPSIO {
 	}
 	
 	public static void main (String [] args) throws IOException {
+		int numOfAtoms = Integer.parseInt(args[0]);
+		int typesOfAtoms = Integer.parseInt(args[1]);
+		double lx = Double.parseDouble(args[2]);
+		double ly = Double.parseDouble(args[3]);
+		double lz = Double.parseDouble(args[4]);
+		int seed = Integer.parseInt(args[5]);
+		String file = args[6];
 		LAMMPSIO io = new LAMMPSIO();
-		io.generateAtomData(1000, 3, 50, 50, 50, -1);
-		io.writeAtomData("lammps_input");
+		io.generateAtomData(numOfAtoms, typesOfAtoms, lx, ly, lz, seed);
+		io.writeAtomData(file);
 	}
 }

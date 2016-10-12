@@ -1,5 +1,6 @@
 package dna_epigenetics;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Random;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class DNAModel {
 	private int sweeps;
 	private int seed;
 	private int time;
+	private double radius = 5.0;
 	
 	//observables
 	private int [] numInState;
@@ -25,12 +27,26 @@ public class DNAModel {
 	//list of observers
 	private ArrayList<DataListener> listeners;
 	
+	//coupling with LAMMPS
+	private boolean runWithLAMMPS = false;
+	private LAMMPSIO lammps = null;
+	
 	public DNAModel (int n, double ratio, int sweeps, int seed) {
+		new DNAModel(n, ratio, sweeps, seed, null);
+	}
+	
+	public DNAModel (int n, double ratio, int sweeps, int seed, LAMMPSIO lammps){
 		this.n = n;
 		this.F = ratio;
 		this.alpha = F / (1 + F);
 		this.sweeps = sweeps;
 		this.seed = seed;
+		if (lammps == null){
+			runWithLAMMPS = false;
+		} else {
+			runWithLAMMPS = true;
+			this.lammps = lammps;
+		}
 		init();
 	}
 	
@@ -43,8 +59,7 @@ public class DNAModel {
 	
 	//initialise the dna strand with random states
 	public void initState(){
-		int i;
-		for (i = 0; i < n; i++){
+		for (int i = 0; i < n; i++){
 			int s = rand.nextInt(3);
 			dna[i] = s;
 			numInState[s]++;
@@ -54,13 +69,23 @@ public class DNAModel {
 	//initialise the dna with specified states
 	public void initState(int [] states){
 		if (states.length == dna.length){
-			int i;
-			for (i = 0; i < states.length; i++){
+			for (int i = 0; i < states.length; i++){
 				int s = states[i];
 				dna[i] = s;
 				numInState[s]++;
 			}
 		}
+	}
+	
+	//initialise the dna with specified states from lammps file
+	public void initState(LAMMPSIO lammps){
+		for (int i = 0; i < n; i++){		
+			int s = lammps.getAtomType(i)-1;
+			dna[i] = s;
+			numInState[s]++;
+			System.out.printf("%d ", s);
+		}
+		System.out.printf("\n");
 	}
 	
 	public void addListener(DataListener l){
@@ -96,14 +121,17 @@ public class DNAModel {
 		//step 1: select a random nucleosome
 		int n1 = rand.nextInt(n);
 		double p1 = rand.nextDouble();
-		
+		double distance = 0.0;
 		//step 2a: recruited conversion
 		if (p1 < alpha){
 			//pick another nucleosome site
 			int n2;
 			do {
 				n2 = rand.nextInt(n);
-			} while (n2 == n1);
+				if (runWithLAMMPS){
+					distance = lammps.getPairwiseDistance(n1, n2);
+				}
+			} while (n2 == n1 || distance > radius);
 			recruitConversion(n1, n2);
 		}
 		
@@ -179,26 +207,51 @@ public class DNAModel {
 		return numInState[2];
 	}
 	
-	public static void main (String [] args){
+	public static void main (String [] args) throws IOException{
 		int n = Integer.parseInt(args[0]);
 		double ratio = Double.parseDouble(args[1]);
 		int sweeps = Integer.parseInt(args[2]);
 		int run = Integer.parseInt(args[3]);
-		String filepath = args[4];
 		int seed = 1;
+		boolean useLAMMPS = Boolean.parseBoolean(args[4]);
+		String fileFromLAMMPS = args[5];
+		String fileToLAMMPS = args[6];
+		
 		String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
 				n, ratio, sweeps, run);
 		//DataWriter stateWriter = new StateWriter();
-		DataWriter probWriter = new ProbabilityWriter(n, sweeps);
+		//DataWriter probWriter = new ProbabilityWriter(n, sweeps);
 		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
-		probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
+		//probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
 		
-		DNAModel model = new DNAModel(n, ratio, sweeps, seed);
-		model.initState();
-		//model.addListener(stateWriter);
-		model.addListener(probWriter);
-		model.run();
-		//stateWriter.closeWriter();
-		probWriter.closeWriter();
+		
+		DNAModel model;
+		//init model from lammps
+		if (useLAMMPS){
+			LAMMPSIO lammps = new LAMMPSIO();
+			lammps.readAtomData(fileFromLAMMPS);
+			lammps.computePairwiseDistance();			
+			model = new DNAModel(n, ratio, sweeps, seed, lammps);
+			System.out.println("using lammps");		
+			model.initState(lammps);
+			model.run();
+			//update atom types in lammps
+			int s;
+			for (int i = 0; i < n; i++){
+				s = model.getState(i);
+				System.out.printf("%d ", s);
+				lammps.setAtomType(i, model.getState(i)+1);
+			}
+			System.out.printf("\n");
+			lammps.writeAtomData(fileToLAMMPS);
+		} else {
+			model = new DNAModel(n, ratio, sweeps, seed);
+			model.initState();
+			//model.addListener(stateWriter);
+			//model.addListener(probWriter);
+			model.run();
+			//stateWriter.closeWriter();
+			//probWriter.closeWriter();
+		}
 	}
 }
