@@ -215,8 +215,8 @@ public class DNAModel {
 		String fileFromLAMMPS = args[5];
 		String fileToLAMMPS = args[6];
 		
-		String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
-				n, ratio, sweeps, run);
+		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
+		//		n, ratio, sweeps, run);
 		//DataWriter stateWriter = new StateWriter();
 		//DataWriter probWriter = new ProbabilityWriter(n, sweeps);
 		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
@@ -233,9 +233,7 @@ public class DNAModel {
 			model.initState(lammps);
 			model.run();
 			//update atom types in lammps
-			int s;
 			for (int i = 0; i < n; i++){
-				s = model.getState(i);
 				lammps.setAtomType(i, model.getState(i)+1);
 			}
 			lammps.writeAtomData(fileToLAMMPS);

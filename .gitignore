@@ -21,6 +21,7 @@
 # Ignore data files
 *.dat
 *.out
+*.xyz
 
 **/bin/*
 

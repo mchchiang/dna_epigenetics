@@ -28,7 +28,7 @@ public class LAMMPSIO {
 		this.ly = ly;
 		this.lz = lz;
 		
-		Random rand = new Random(seed);
+		Random rand = new Random();
 		
 		atomPosition = new double [numOfAtoms][dimension];
 		atomVelocity = new double [numOfAtoms][dimension];

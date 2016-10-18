@@ -126,18 +126,18 @@ run 1000
 write_data dna.out nocoeff
 
 variable restarttime equal 2000
-variable seed equal 7532155
-variable numOfAtoms equal 70
+variable seed equal SEED
+variable numOfAtoms equal NUMOFATOMS
 variable sweeps equal 1000
-variable ratio equal 3.0
-variable run equal 1
-variable posfile string "dna.xyz"
+variable ratio equal RATIO
+variable run equal RUN
+variable posfile string "XYZFILE"
 
 shell > ${posfile}
 
 # now start epigentic modification
 
-variable loopindex loop 1000
+variable loopindex loop MAXITER
 
 label loop
 
@@ -178,8 +178,8 @@ pair_modify     shift yes
 # make nucleosomes of same epigentic state attractive with
 # each other (except if the nucleosome is unmodified)
 pair_coeff	* * 1.0 1.0 1.12246152962189
-pair_coeff      1 1 2.5 1.0 2.5
-pair_coeff      3 3 2.5 1.0 2.5
+pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
+pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
 
 bond_style   fene
 
