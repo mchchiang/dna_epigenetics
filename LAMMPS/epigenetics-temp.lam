@@ -29,7 +29,7 @@ restart 1000000 DNA.restart
 #processors 2 1 1 #to choose decomposition 
 
 ### READ "start" data file ###
-read_data initdna.in
+read_data INITFILE
 ######################
 
 ### reset timestep ###
@@ -48,8 +48,8 @@ group M type 3
 ###
 # Dump configs + box coords
 ###
-dump   1   all   custom   1000000   dna_equil.dump.*  id  x y z  ix iy iz
-dump_modify   1   format "%d %.5f %.5f %.5f %d %d %d"
+#dump   1   all   custom   1000000   dna_equil.dump.*  id  x y z  ix iy iz
+#dump_modify   1   format "%d %.5f %.5f %.5f %d %d %d"
 
 ###################################################################
 # Stiffness term
@@ -123,7 +123,7 @@ bond_coeff   1   30.0   1.6   1.0   1.0
 
 run 1000
 
-write_data dna.out nocoeff
+write_data OUTFILE nocoeff
 
 variable restarttime equal 2000
 variable seed equal SEED
@@ -141,7 +141,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel ${numOfAtoms} ${ratio} ${sweeps} ${run} true dna.out dna.in
+shell java dna_epigenetics.DNAModel ${numOfAtoms} ${ratio} ${sweeps} ${run} true OUTFILE INFILE
 
 clear
 
@@ -152,7 +152,7 @@ boundary        p p p
 neighbor 0.3 bin 
 neigh_modify every 1 delay 1 check yes 
  
-read_data dna.in
+read_data INFILE
 
 reset_timestep ${restarttime}
 
@@ -206,7 +206,7 @@ thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c
 
 run 1000
 
-write_data dna.out nocoeff
+write_data OUTFILE nocoeff
 
 #shell cat dump.out dump.DNA > out
 #shell mv out dump.out

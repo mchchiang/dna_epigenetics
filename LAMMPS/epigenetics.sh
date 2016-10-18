@@ -18,8 +18,12 @@ type_of_atoms=3
 name="${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
 thermo_file="thermo_${name}.dat"
 xyz_file="vmd_${name}.xyz"
+init_file="init_${name}.in"
+in_file="dna_${name}.in"
+out_file="dna_${name}.out"
 
 outdir="`pwd`/${outdir}"
+basedir=`pwd`
 
 # create the lammps command file based on template
 file=epigenetics.lam
@@ -30,7 +34,7 @@ seed2=$(bc <<< "$seed+34987")
 
 cd ${exepath}
 
-java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 initdna.in
+java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $init_file
 
 # replace macros in template with input values
 sed -i -- "s/NUMOFATOMS/${num_of_atoms}/g" $file
@@ -41,16 +45,20 @@ sed -i -- "s/MAXITER/${max_iter}/g" $file
 sed -i -- "s/SEED/${seed}/g" $file
 sed -i -- "s/RUN/${run}/g" $file
 sed -i -- "s/XYZFILE/${xyz_file}/g" $file
+sed -i -- "s/INITFILE/${init_file}/g" $file
+sed -i -- "s/INFILE/${in_file}/g" $file
+sed -i -- "s/OUTFILE/${out_file}/g" $file
 
 # run the simulation
+logfile="log_${name}.lammps"
 if (( $(bc <<< "$nproc == 1") )); then
-    lmp_serial < $file
+    lmp_serial -screen none -log $logfile -in $file
 else
-    mpirun -n $nproc lmp_mpi < $file
+    mpirun -n $nproc lmp_mpi -screen none -log $logfile -in $file
 fi
 
 # write the thermo data
-python GetThermoData.py log.lammps "${outdir}/${thermo_file}"
+python "${basedir}/GetThermoData.py" $logfile "${outdir}/${thermo_file}"
 
 # move other files to output directory
 mv $xyz_file "${outdir}/${xyz_file}"
