@@ -1,0 +1,219 @@
+###
+# Reference paper:
+# K. Kremer and G. S. Grest
+# Dynamics of entangled linear polymer melts: A molecular-dynamics simulation
+# J Chem Phys 92, 5057 (1990)
+###
+
+###
+# Box and units  (use LJ units and periodic boundaries)
+###
+
+units lj
+
+atom_style angle #with stiffness
+
+boundary        p p p 
+
+###
+# Pair interactions require lists of neighbours to be calculated
+###
+neighbor 1.9 bin #sets skin for neighbour list
+neigh_modify every 1 delay 1 check yes 
+
+### Generate RESTART file, SPECIAL format, not a .txt file ###
+### Useful if simulation crashes ###
+restart 1000000 DNA.restart
+#############################
+
+#processors 2 1 1 #to choose decomposition 
+
+### READ "start" data file ###
+read_data initdna.in
+######################
+
+### reset timestep ###
+reset_timestep 0 
+######################
+
+
+###
+# Define groups (atom type 1 is group 'all')
+##
+group all type 1 2 3
+group A type 1
+group U type 2
+group M type 3
+
+###
+# Dump configs + box coords
+###
+dump   1   all   custom   1000000   dna_equil.dump.*  id  x y z  ix iy iz
+dump_modify   1   format "%d %.5f %.5f %.5f %d %d %d"
+
+###################################################################
+# Stiffness term
+#
+# E = K * (1+cos(theta)), K>0
+#
+# specify K
+
+angle_style   cosine
+angle_coeff   1 20.0
+###################################################################
+
+###################################################################
+# Pair interaction between non-bonded atoms
+# use soft potential for equilibration
+# E = A*(1+cos(pi*r/rc)
+# specify A rc
+
+pair_style     soft 1.12246152962189
+pair_coeff * * 100.0 1.12246152962189
+###################################################################
+
+###################################################################
+# Pair interaction between bonded atoms
+# use harmonic potential for equilibration
+# E = K*(r-r0)^2
+# specify K r0
+
+bond_style   harmonic 
+bond_coeff   1   100.0   1.1 
+###################################################################
+
+# quantities to compute/measure
+compute gyr all gyration
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo 1000
+thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+############################################################################
+
+###
+# Set up fixes
+###
+
+fix 1 all   nve   ###NVE ensemble
+fix 2 all   langevin   1.0 1.0   1.0   267 ###Langevin integrator Tstart Tstop 1/friction rndseed
+
+###
+# set timestep of integrator
+###
+timestep 0.01 #0.012
+
+###
+# run integration for a number of steps
+###
+run 1000
+
+# equilibrate with fene potential and change dna stiffness
+
+angle_coeff   1 20.0
+
+pair_style      lj/cut 1.12246152962189
+pair_modify     shift yes
+pair_coeff      * * 1.0 1.0 1.12246152962189
+
+bond_style   fene
+
+special_bonds fene #<=== I M P O R T A N T (new command)
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+run 1000
+
+write_data dna.out nocoeff
+
+variable restarttime equal 2000
+variable seed equal 7532155
+variable numOfAtoms equal 70
+variable sweeps equal 1000
+variable ratio equal 3.0
+variable run equal 1
+variable posfile string "dna.xyz"
+
+shell > ${posfile}
+
+# now start epigentic modification
+
+variable loopindex loop 1000
+
+label loop
+
+shell java dna_epigenetics.DNAModel ${numOfAtoms} ${ratio} ${sweeps} ${run} true dna.out dna.in
+
+clear
+
+units lj
+atom_style angle
+boundary        p p p 
+
+neighbor 0.3 bin 
+neigh_modify every 1 delay 1 check yes 
+ 
+read_data dna.in
+
+reset_timestep ${restarttime}
+
+group all type 1 2 3
+group A type 1
+group U type 2
+group M type 3
+
+# dump simulation results every N steps into same file
+#dump   id all atom 1000 dump.DNA
+
+dump 3 all xyz 1000 ${posfile}
+dump_modify 3 element O N C append yes
+
+
+angle_style   cosine
+angle_coeff   1 3.0
+
+pair_style      lj/cut 1.12246152962189
+
+pair_modify     shift yes
+
+# make nucleosomes of same epigentic state attractive with
+# each other (except if the nucleosome is unmodified)
+pair_coeff	* * 1.0 1.0 1.12246152962189
+pair_coeff      1 1 2.5 1.0 2.5
+pair_coeff      3 3 2.5 1.0 2.5
+
+bond_style   fene
+
+special_bonds fene #<=== I M P O R T A N T (new command)
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+###
+# Set up fixes
+###
+
+fix 1 all   nve  
+fix 2 all   langevin   1.0 1.0   1.0  ${seed}
+
+# quantities to compute/measure
+compute gyr all gyration
+
+timestep 0.01 #0.012
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo 1000
+thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+############################################################################
+
+run 1000
+
+write_data dna.out nocoeff
+
+#shell cat dump.out dump.DNA > out
+#shell mv out dump.out
+
+variable restarttime equal (${restarttime}+1000)
+variable seed equal (${seed}+100)
+
+next loopindex
+
+jump epigenetics.lam loop

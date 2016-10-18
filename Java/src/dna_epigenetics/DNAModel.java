@@ -32,10 +32,10 @@ public class DNAModel {
 	private LAMMPSIO lammps = null;
 	
 	public DNAModel (int n, double ratio, int sweeps, int seed) {
-		new DNAModel(n, ratio, sweeps, seed, null);
+		this(n, ratio, sweeps, seed, null);
 	}
 	
-	public DNAModel (int n, double ratio, int sweeps, int seed, LAMMPSIO lammps){
+	public DNAModel (int n, double ratio, int sweeps, int seed, LAMMPSIO lammps){	
 		this.n = n;
 		this.F = ratio;
 		this.alpha = F / (1 + F);
@@ -83,9 +83,7 @@ public class DNAModel {
 			int s = lammps.getAtomType(i)-1;
 			dna[i] = s;
 			numInState[s]++;
-			System.out.printf("%d ", s);
 		}
-		System.out.printf("\n");
 	}
 	
 	public void addListener(DataListener l){
@@ -137,7 +135,7 @@ public class DNAModel {
 		
 		//step 2b: noisy conversion
 		else {
-			noisyConversion(n1, rand.nextDouble(), rand.nextDouble());
+			noisyConversion(n1, rand.nextDouble());
 		}
 	}
 	
@@ -154,7 +152,7 @@ public class DNAModel {
 		}
 	}
 	
-	protected void noisyConversion(int n1, double p1, double p2){
+	protected void noisyConversion(int n1, double p1){
 		int s1 = dna[n1];		
 		if (s1 == 0 && p1 < 1.0/3.0){
 			setState(n1, dna[n1]+1);
@@ -231,18 +229,15 @@ public class DNAModel {
 			LAMMPSIO lammps = new LAMMPSIO();
 			lammps.readAtomData(fileFromLAMMPS);
 			lammps.computePairwiseDistance();			
-			model = new DNAModel(n, ratio, sweeps, seed, lammps);
-			System.out.println("using lammps");		
+			model = new DNAModel(n, ratio, sweeps, seed, lammps);	
 			model.initState(lammps);
 			model.run();
 			//update atom types in lammps
 			int s;
 			for (int i = 0; i < n; i++){
 				s = model.getState(i);
-				System.out.printf("%d ", s);
 				lammps.setAtomType(i, model.getState(i)+1);
 			}
-			System.out.printf("\n");
 			lammps.writeAtomData(fileToLAMMPS);
 		} else {
 			model = new DNAModel(n, ratio, sweeps, seed);

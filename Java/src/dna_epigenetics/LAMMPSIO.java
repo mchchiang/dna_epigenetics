@@ -16,6 +16,7 @@ public class LAMMPSIO {
 	private boolean readData = false;
 	private boolean computedPairwiseDistance = false;
 	private final double pi = Math.PI;
+	
 	private String header = 
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 	
@@ -38,23 +39,22 @@ public class LAMMPSIO {
 		for (int i = 0; i < dimension; i++){
 			atomPosition[0][i] = 0.0;
 		}
-		atomPosition[0][0] = -lx/2.0+10.0;
 		
 		double x, y, z, r, costheta, sintheta, phi;
 		
 		for (int i = 1; i < numOfAtoms; i++){
 			do {
-				/*r = rand.nextDouble();
+				r = rand.nextDouble();
 				costheta = 1.0 - 2.0 * r;
 				sintheta = Math.sqrt(1 - costheta*costheta);
 				r = rand.nextDouble();
 				phi = 2.0 * pi * r;
 				x = atomPosition[i-1][0] + sintheta * Math.cos(phi);
 				y = atomPosition[i-1][1] + sintheta * Math.sin(phi);
-				z = atomPosition[i-1][2] + costheta;*/
-				x = atomPosition[i-1][0] + 1.0;
+				z = atomPosition[i-1][2] + costheta;
+				/*x = atomPosition[i-1][0] + 1.0;
 				y = atomPosition[i-1][1];
-				z = atomPosition[i-1][2];
+				z = atomPosition[i-1][2];*/
 			} while (Math.abs(x) > lx/2.0 ||
 					 Math.abs(y) > ly/2.0 || 
 					 Math.abs(z) > lz/2.0);
@@ -248,14 +248,12 @@ public class LAMMPSIO {
 		//print atoms' positions
 		writer.printf("\nAtoms\n\n");
 		for (int i = 0; i < numOfAtoms; i++){
-			System.out.printf("%d ", atomType[i]-1);
 			writer.printf("%d %d %d %.16f %.16f %.16f %d %d %d\n",
 					i+1, 1, atomType[i], 
 					atomPosition[i][0], atomPosition[i][1], atomPosition[i][2],
 					atomBoundaryCount[i][0], atomBoundaryCount[i][1],
 					atomBoundaryCount[i][2]);
 		}
-		System.out.printf("\n");
 
 		//print atoms' velocities
 		writer.printf("\nVelocities\n\n");
@@ -285,7 +283,7 @@ public class LAMMPSIO {
 		int index = 0;
 		for (int i = 1; i < numOfAtoms; i++){
 			for (int j = 0; j < i; j++){
-				pairwiseDistance[index] = distance(
+				pairwiseDistance[index] = Vector.distance(
 						atomPosition[i][0] + lx * atomBoundaryCount[i][0], 
 						atomPosition[i][1] + ly * atomBoundaryCount[i][1], 
 						atomPosition[i][2] + lz * atomBoundaryCount[i][2],
@@ -299,6 +297,10 @@ public class LAMMPSIO {
 	}
 
 	//accessor methods
+	public int getNumOfAtoms(){
+		return numOfAtoms;
+	}
+	
 	public double getAtomPosition(int index, int comp){
 		return atomPosition[index][comp];
 	}
@@ -328,15 +330,6 @@ public class LAMMPSIO {
 			index = atom1 * (atom1-1) / 2 + atom2;
 		}
 		return pairwiseDistance[index];
-	}
-
-	protected double distance(
-			double x1, double y1, double z1, 
-			double x2, double y2, double z2){
-		double dx = x2-x1;
-		double dy = y2-y1;
-		double dz = z2-z1;
-		return Math.sqrt(dx*dx + dy*dy + dz*dz);
 	}
 	
 	public static void main (String [] args) throws IOException {
