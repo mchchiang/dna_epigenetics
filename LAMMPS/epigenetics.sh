@@ -1,4 +1,4 @@
-#!/bin/bash
+1;95;0c#!/bin/bash
 
 # read in parameters
 num_of_atoms=$1
