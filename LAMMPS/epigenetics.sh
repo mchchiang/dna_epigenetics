@@ -1,4 +1,4 @@
-1;95;0c#!/bin/bash
+#!/bin/bash
 
 # read in parameters
 num_of_atoms=$1
@@ -26,7 +26,7 @@ outdir="`pwd`/${outdir}"
 basedir=`pwd`
 
 # create the lammps command file based on template
-file=epigenetics.lam
+file="epi_${name}.lam"
 cp epigenetics-temp.lam ${exepath}/$file
 
 # init dna strand
@@ -48,13 +48,14 @@ sed -i -- "s/XYZFILE/${xyz_file}/g" $file
 sed -i -- "s/INITFILE/${init_file}/g" $file
 sed -i -- "s/INFILE/${in_file}/g" $file
 sed -i -- "s/OUTFILE/${out_file}/g" $file
+sed -i -- "s/LAMMPSFILE/${file}/g" $file
 
 # run the simulation
 logfile="log_${name}.lammps"
 if (( $(bc <<< "$nproc == 1") )); then
     lmp_serial -screen none -log $logfile -in $file
 else
-    mpirun -n $nproc lmp_mpi -screen none -log $logfile -in $file
+    mpirun -n $nproc -screen none lmp_mpi -log $logfile -in $file
 fi
 
 # write the thermo data

@@ -216,4 +216,4 @@ variable seed equal (${seed}+100)
 
 next loopindex
 
-jump epigenetics.lam loop
+jump LAMMPSFILE loop
