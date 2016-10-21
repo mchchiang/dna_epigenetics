@@ -105,7 +105,7 @@ timestep 0.01 #0.012
 ###
 # run integration for a number of steps
 ###
-run 1000
+run 5000
 
 # equilibrate with fene potential and change dna stiffness
 
@@ -121,16 +121,13 @@ special_bonds fene #<=== I M P O R T A N T (new command)
 
 bond_coeff   1   30.0   1.6   1.0   1.0
 
-run 1000
+run 5000
 
 write_data OUTFILE nocoeff
 
-variable restarttime equal 2000
+variable restarttime equal 10000
 variable seed equal SEED
-variable numOfAtoms equal NUMOFATOMS
-variable sweeps equal 1000
-variable ratio equal RATIO
-variable run equal RUN
+variable sweeps equal 1
 variable posfile string "XYZFILE"
 
 shell > ${posfile}
@@ -141,7 +138,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel ${numOfAtoms} ${ratio} ${sweeps} ${run} true OUTFILE INFILE
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN true OUTFILE INFILE
 
 clear
 

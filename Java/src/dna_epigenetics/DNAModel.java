@@ -16,7 +16,7 @@ public class DNAModel {
 	private int sweeps;
 	private int seed;
 	private int time;
-	private double radius = 5.0;
+	private double radius;
 	
 	//observables
 	private int [] numInState;
@@ -31,14 +31,16 @@ public class DNAModel {
 	private boolean runWithLAMMPS = false;
 	private LAMMPSIO lammps = null;
 	
-	public DNAModel (int n, double ratio, int sweeps, int seed) {
-		this(n, ratio, sweeps, seed, null);
+	public DNAModel (int n, double ratio, double radius, int sweeps, int seed) {
+		this(n, ratio, radius, sweeps, seed, null);
 	}
 	
-	public DNAModel (int n, double ratio, int sweeps, int seed, LAMMPSIO lammps){	
+	public DNAModel (int n, double ratio, double radius, 
+			int sweeps, int seed, LAMMPSIO lammps){	
 		this.n = n;
 		this.F = ratio;
 		this.alpha = F / (1 + F);
+		this.radius = radius; 
 		this.sweeps = sweeps;
 		this.seed = seed;
 		if (lammps == null){
@@ -189,6 +191,10 @@ public class DNAModel {
 		return F;
 	}
 	
+	public double getRadius(){
+		return radius;
+	}
+	
 	public int getTime(){
 		return time;
 	}
@@ -208,12 +214,13 @@ public class DNAModel {
 	public static void main (String [] args) throws IOException{
 		int n = Integer.parseInt(args[0]);
 		double ratio = Double.parseDouble(args[1]);
-		int sweeps = Integer.parseInt(args[2]);
-		int run = Integer.parseInt(args[3]);
+		double radius = Double.parseDouble(args[2]);
+		int sweeps = Integer.parseInt(args[3]);
+		int run = Integer.parseInt(args[4]);
 		int seed = 1;
-		boolean useLAMMPS = Boolean.parseBoolean(args[4]);
-		String fileFromLAMMPS = args[5];
-		String fileToLAMMPS = args[6];
+		boolean useLAMMPS = Boolean.parseBoolean(args[5]);
+		String fileFromLAMMPS = args[6];
+		String fileToLAMMPS = args[7];
 		
 		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
 		//		n, ratio, sweeps, run);
@@ -229,7 +236,7 @@ public class DNAModel {
 			LAMMPSIO lammps = new LAMMPSIO();
 			lammps.readAtomData(fileFromLAMMPS);
 			lammps.computePairwiseDistance();			
-			model = new DNAModel(n, ratio, sweeps, seed, lammps);	
+			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);	
 			model.initState(lammps);
 			model.run();
 			//update atom types in lammps
@@ -238,7 +245,7 @@ public class DNAModel {
 			}
 			lammps.writeAtomData(fileToLAMMPS);
 		} else {
-			model = new DNAModel(n, ratio, sweeps, seed);
+			model = new DNAModel(n, ratio, radius, sweeps, seed);
 			model.initState();
 			//model.addListener(stateWriter);
 			//model.addListener(probWriter);
