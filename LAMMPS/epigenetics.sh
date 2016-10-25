@@ -54,6 +54,10 @@ sed -i -- "s/LAMMPSFILE/${file}/g" $file
 sed -i -- "s/STATEFILE/${state_file}/g" $file
 sed -i -- "s/STATSFILE/${stats_file}/g" $file
 
+# clear any previous entries in the state and stats file
+> $state_file
+> $stats_file
+
 # run the simulation
 logfile="log_${name}.lammps"
 if (( $(bc <<< "$nproc == 1") )); then
