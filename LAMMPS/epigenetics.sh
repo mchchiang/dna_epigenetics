@@ -71,5 +71,7 @@ python "${basedir}/GetThermoData.py" $logfile "${outdir}/${thermo_file}"
 
 # move other files to output directory
 mv $xyz_file "${outdir}/${xyz_file}"
+mv $state_file "${outdir}/${state_file}"
+mv $stats_file "${outdir}/${stats_file}"
 
 cd $PWD
