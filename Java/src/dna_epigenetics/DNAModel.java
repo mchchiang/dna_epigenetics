@@ -191,6 +191,10 @@ public class DNAModel {
 		return F;
 	}
 	
+	public int getNumOfNucleosomes(){
+		return n;
+	}
+	
 	public double getRadius(){
 		return radius;
 	}
@@ -211,6 +215,12 @@ public class DNAModel {
 		return numInState[2];
 	}
 	
+	public double getG(){
+		double m = numInState[2];
+		double a = numInState[0];
+		return Math.abs(m-a)/(m+a);
+	}
+	
 	public static void main (String [] args) throws IOException{
 		int n = Integer.parseInt(args[0]);
 		double ratio = Double.parseDouble(args[1]);
@@ -218,9 +228,12 @@ public class DNAModel {
 		int sweeps = Integer.parseInt(args[3]);
 		int run = Integer.parseInt(args[4]);
 		int seed = 1;
+		long actualTime = Long.parseLong(args[5]);
 		boolean useLAMMPS = Boolean.parseBoolean(args[5]);
 		String fileFromLAMMPS = args[6];
 		String fileToLAMMPS = args[7];
+		String stateFileName = args[8];
+		//String statsFileName = args[9];
 		
 		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
 		//		n, ratio, sweeps, run);
@@ -228,7 +241,8 @@ public class DNAModel {
 		//DataWriter probWriter = new ProbabilityWriter(n, sweeps);
 		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
 		//probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
-		
+		DataWriter stateWriter = new StateWriter(actualTime);
+		stateWriter.openWriter(stateFileName, true);
 		
 		DNAModel model;
 		//init model from lammps
@@ -236,7 +250,8 @@ public class DNAModel {
 			LAMMPSIO lammps = new LAMMPSIO();
 			lammps.readAtomData(fileFromLAMMPS);
 			lammps.computePairwiseDistance();			
-			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);	
+			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
+			model.addListener(stateWriter);
 			model.initState(lammps);
 			model.run();
 			//update atom types in lammps
@@ -247,11 +262,7 @@ public class DNAModel {
 		} else {
 			model = new DNAModel(n, ratio, radius, sweeps, seed);
 			model.initState();
-			//model.addListener(stateWriter);
-			//model.addListener(probWriter);
 			model.run();
-			//stateWriter.closeWriter();
-			//probWriter.closeWriter();
 		}
 	}
 }

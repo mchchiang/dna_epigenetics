@@ -52,9 +52,6 @@ public class LAMMPSIO {
 				x = atomPosition[i-1][0] + sintheta * Math.cos(phi);
 				y = atomPosition[i-1][1] + sintheta * Math.sin(phi);
 				z = atomPosition[i-1][2] + costheta;
-				/*x = atomPosition[i-1][0] + 1.0;
-				y = atomPosition[i-1][1];
-				z = atomPosition[i-1][2];*/
 			} while (Math.abs(x) > lx/2.0 ||
 					 Math.abs(y) > ly/2.0 || 
 					 Math.abs(z) > lz/2.0);

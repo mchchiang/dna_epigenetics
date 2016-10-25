@@ -21,8 +21,18 @@ public abstract class DataWriter implements DataListener {
 	 * @param filename name of the file
 	 */
 	public void openWriter(String filename){
+		openWriter(filename, false);
+	}
+	
+	/**
+	 * Open a new file stream for writing data
+	 * @param filename name of the file
+	 * @param append whether to overwrite the file or append at
+	 * the end of the file
+	 */
+	public void openWriter(String filename, boolean append){
 		try {
-			writer = new PrintWriter(new FileWriter(filename));
+			writer = new PrintWriter(new FileWriter(filename, append));
 		} catch (IOException e){
 			writer = null;
 			System.out.println("Cannot open file: " + filename);
