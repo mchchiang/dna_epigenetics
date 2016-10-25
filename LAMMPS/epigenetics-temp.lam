@@ -138,7 +138,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${restarttime} true OUTFILE INFILE STATEFILE
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${restarttime} true OUTFILE INFILE STATEFILE STATSFILE
 
 clear
 

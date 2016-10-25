@@ -233,7 +233,7 @@ public class DNAModel {
 		String fileFromLAMMPS = args[7];
 		String fileToLAMMPS = args[8];
 		String stateFileName = args[9];
-		//String statsFileName = args[9];
+		String statsFileName = args[9];
 		
 		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
 		//		n, ratio, sweeps, run);
@@ -242,7 +242,9 @@ public class DNAModel {
 		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
 		//probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
 		DataWriter stateWriter = new StateWriter(actualTime);
+		DataWriter statsWriter = new StatsWriter(actualTime);
 		stateWriter.openWriter(stateFileName, true);
+		statsWriter.openWriter(statsFileName, true);
 		
 		DNAModel model;
 		//init model from lammps
@@ -252,6 +254,7 @@ public class DNAModel {
 			lammps.computePairwiseDistance();			
 			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
 			model.addListener(stateWriter);
+			model.addListener(statsWriter);
 			model.initState(lammps);
 			model.run();
 			//update atom types in lammps
@@ -262,10 +265,12 @@ public class DNAModel {
 		} else {
 			model = new DNAModel(n, ratio, radius, sweeps, seed);
 			model.addListener(stateWriter);
+			model.addListener(statsWriter);
 			model.initState();
 			model.run();
 		}
 		
 		stateWriter.closeWriter();
+		statsWriter.closeWriter();
 	}
 }
