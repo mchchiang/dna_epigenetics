@@ -229,10 +229,10 @@ public class DNAModel {
 		int run = Integer.parseInt(args[4]);
 		int seed = 1;
 		long actualTime = Long.parseLong(args[5]);
-		boolean useLAMMPS = Boolean.parseBoolean(args[5]);
-		String fileFromLAMMPS = args[6];
-		String fileToLAMMPS = args[7];
-		String stateFileName = args[8];
+		boolean useLAMMPS = Boolean.parseBoolean(args[6]);
+		String fileFromLAMMPS = args[7];
+		String fileToLAMMPS = args[8];
+		String stateFileName = args[9];
 		//String statsFileName = args[9];
 		
 		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
@@ -264,5 +264,7 @@ public class DNAModel {
 			model.initState();
 			model.run();
 		}
+		
+		stateWriter.closeWriter();
 	}
 }
