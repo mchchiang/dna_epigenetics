@@ -15,7 +15,7 @@ outdir=${11}     # output directory relative to current directory
 
 type_of_atoms=3
 
-name="L_{box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
+name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
 thermo_file="thermo_${name}.dat"
 xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
