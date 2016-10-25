@@ -21,6 +21,7 @@ xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
 in_file="dna_${name}.in"
 out_file="dna_${name}.out"
+state_file="state_${name}.dat"
 
 outdir="`pwd`/${outdir}"
 basedir=`pwd`
@@ -49,6 +50,7 @@ sed -i -- "s/INITFILE/${init_file}/g" $file
 sed -i -- "s/INFILE/${in_file}/g" $file
 sed -i -- "s/OUTFILE/${out_file}/g" $file
 sed -i -- "s/LAMMPSFILE/${file}/g" $file
+sed -i -- "s/STATEFILE/${state_file}/g" $file
 
 # run the simulation
 logfile="log_${name}.lammps"
