@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # read in parameters
-num_of_atoms=$1
-box_size=$2
+box_size=$1
+num_of_atoms=$2
 ratio=$3
 bond_energy=$4
 cut_off=$5
@@ -15,7 +15,7 @@ outdir=${11}     # output directory relative to current directory
 
 type_of_atoms=3
 
-name="${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
+name="L_{box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
 thermo_file="thermo_${name}.dat"
 xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
