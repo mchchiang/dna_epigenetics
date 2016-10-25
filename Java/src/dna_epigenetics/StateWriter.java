@@ -17,7 +17,7 @@ public class StateWriter extends DataWriter {
 		int n = model.getNumOfNucleosomes();
 		long totalTime = actualTime + time;
 		for (int i = 0; i < n; i++){
-			writer.printf("%ld %d %d\n", totalTime, (i+1), model.getState(i));
+			writer.printf("%d %d %d\n", totalTime, (i+1), model.getState(i));
 		}
 		writer.printf("\n\n");
 	}

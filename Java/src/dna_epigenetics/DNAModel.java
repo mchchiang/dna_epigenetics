@@ -261,6 +261,7 @@ public class DNAModel {
 			lammps.writeAtomData(fileToLAMMPS);
 		} else {
 			model = new DNAModel(n, ratio, radius, sweeps, seed);
+			model.addListener(stateWriter);
 			model.initState();
 			model.run();
 		}
