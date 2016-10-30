@@ -7,11 +7,13 @@ ratio=$3
 bond_energy=$4
 cut_off=$5
 max_iter=$6
-seed=$7
-run=$8
-exepath=$9
-nproc=${10}
-outdir=${11}     # output directory relative to current directory
+teq=$7
+seed=$8
+run=$9
+dump=${10}
+exepath=${11}
+nproc=${12}
+outdir=${13}     # output directory relative to current directory
 
 type_of_atoms=3
 
@@ -53,6 +55,20 @@ sed -i -- "s/OUTFILE/${out_file}/g" $file
 sed -i -- "s/LAMMPSFILE/${file}/g" $file
 sed -i -- "s/STATEFILE/${state_file}/g" $file
 sed -i -- "s/STATSFILE/${stats_file}/g" $file
+
+# calculate equilibrium times
+equil_soft=1000
+equil_fene=$(bc <<< "$teq-$equil_soft")
+
+sed -i -- "s/EQUIL_SOFT/${equil_soft}/g" $file
+sed -i -- "s/EQUIL_FENE/${equil_fene}/g" $file
+
+# set whether to dump xyz files
+dump_flag=''
+if [ $dump != "dump" ]; then
+   dump_flag='#'
+fi
+sed -i -- "s/DUMPFLAG/${dump_flag}/g" $file
 
 # clear any previous entries in the state and stats file
 > $state_file
