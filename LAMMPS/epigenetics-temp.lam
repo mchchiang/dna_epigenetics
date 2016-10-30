@@ -122,9 +122,9 @@ write_data OUTFILE nocoeff
 variable restarttime equal 10000
 variable seed equal SEED
 variable sweeps equal 1
-variable posfile string "XYZFILE"
+DUMPFLAGvariable posfile string "XYZFILE"
 
-shell > ${posfile}
+DUMPFLAGshell > ${posfile}
 
 # now start epigentic modification
 
