@@ -80,8 +80,8 @@ bond_coeff   1   100.0   1.1
 compute gyr all gyration
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
-thermo 1000
-thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+#thermo 1000
+#thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
 ############################################################################
 
 ###
