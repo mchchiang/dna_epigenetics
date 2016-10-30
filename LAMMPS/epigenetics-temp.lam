@@ -119,7 +119,7 @@ run EQUIL_FENE
 
 write_data OUTFILE nocoeff
 
-variable restarttime equal 10000
+variable restarttime equal EQUIL_TOTAL
 variable seed equal SEED
 variable sweeps equal 1
 DUMPFLAGvariable posfile string "XYZFILE"

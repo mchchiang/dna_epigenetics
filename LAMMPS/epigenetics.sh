@@ -62,6 +62,7 @@ equil_fene=$(bc <<< "$teq-$equil_soft")
 
 sed -i -- "s/EQUIL_SOFT/${equil_soft}/g" $file
 sed -i -- "s/EQUIL_FENE/${equil_fene}/g" $file
+sed -i -- "s/EQUIL_TOTAL/${teq}/g" $file
 
 # set whether to dump xyz files
 dump_flag=''
