@@ -77,7 +77,7 @@ bond_coeff   1   100.0   1.1
 ###################################################################
 
 # quantities to compute/measure
-compute gyr all gyration
+#compute gyr all gyration
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
 #thermo 1000
@@ -152,7 +152,7 @@ group A type 1
 group U type 2
 group M type 3
 
-DUMPFLAGdump 3 all xyz 1000 ${posfile}
+DUMPFLAGdump 3 all xyz 999 ${posfile}
 DUMPFLAGdump_modify 3 element O N C append yes
 
 angle_style   cosine
