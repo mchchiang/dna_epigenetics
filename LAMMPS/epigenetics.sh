@@ -8,14 +8,15 @@ bond_energy=$4
 cut_off=$5
 max_iter=$6
 teq=$7
-seed=$8
-run=$9
-dump=${10}
-exepath=${11}
-nproc=${12}
-outdir=${13}     # output directory relative to current directory
+run=$8
+dump=$9
+exepath=${10}
+nproc=${11}
+outdir=${12}     # output directory relative to current directory
 
 type_of_atoms=3
+
+seed=$(python GetRandom.py 100000)
 
 name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
 thermo_file="thermo_${name}.dat"
