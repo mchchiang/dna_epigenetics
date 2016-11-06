@@ -235,14 +235,19 @@ public class DNAModel {
 		String stateFileName = args[9];
 		String statsFileName = args[10];
 		
-		//String name = String.format("n_%d_F_%.2f_t_%d_run_%d.dat",
-		//		n, ratio, sweeps, run);
-		//DataWriter stateWriter = new StateWriter();
-		//DataWriter probWriter = new ProbabilityWriter(n, sweeps);
-		//stateWriter.openWriter(Paths.get(filepath, "state_" + name).toString());
-		//probWriter.openWriter(Paths.get(filepath, "prob_" + name).toString());
-		DataWriter stateWriter = new StateWriter(actualTime);
-		DataWriter statsWriter = new StatsWriter(actualTime);
+		DataWriter stateWriter, statsWriter;
+		if (stateFileName.equalsIgnoreCase("none")){
+			stateWriter = new NullWriter();
+		} else {
+			stateWriter = new StateWriter(actualTime);
+		}
+		
+		if (stateFileName.equalsIgnoreCase("none")){
+			statsWriter = new NullWriter();
+		} else {
+			statsWriter = new StatsWriter(actualTime);
+		}
+		
 		stateWriter.openWriter(stateFileName, true);
 		statsWriter.openWriter(statsFileName, true);
 		
