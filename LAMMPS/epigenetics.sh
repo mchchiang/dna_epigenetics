@@ -73,8 +73,13 @@ fi
 sed -i -- "s/DUMPFLAG/${dump_flag}/g" $file
 
 # clear any previous entries in the state and stats file
-> $state_file
-> $stats_file
+if [ $state_file != "none" ]; then
+    > $state_file
+fi
+
+if [ $stats_file != "none" ]; then
+    > $stats_file
+fi
 
 # run the simulation
 logfile="log_${name}.lammps"
@@ -88,8 +93,13 @@ fi
 python "${basedir}/GetThermoData.py" $logfile "${outdir}/${thermo_file}"
 
 # move other files to output directory
-mv $state_file "${outdir}/${state_file}"
-mv $stats_file "${outdir}/${stats_file}"
+if [ $state_file != "none" ]; then
+    mv $state_file "${outdir}/${state_file}"
+fi
+
+if [ $stats_file != "none" ]; then
+    mv $stats_file "${outdir}/${stats_file}"
+fi
 
 if [ $dump = "dump" ]; then
     mv $xyz_file "${outdir}/${xyz_file}"

@@ -12,7 +12,7 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-max_iter=5000
+max_iter=100000
 teq=1000000
 dump=dump
 exepath="../Java/build/classes/"
@@ -30,16 +30,18 @@ do
     e=$e_start
     while (( $(bc <<< "$e <= $e_end") ))
     do
-	e=$(printf "%.1f" $e)
+	e=$(printf "%.2f" $e)
 	f=$(printf "%.1f" $f)
 	for (( run=1; run <= $max_run; run++ ))
 	do
-	#    if [ run = 1 ]; then
-	#	dump=dump
-	#    else
-	#	dump=nodump
-	#    fi
 	    runid=$(bc <<< "$run + $run_shift")
+
+	    if [ $runid = 1 ]; then
+		dump=nodump
+	    else
+		dump=nodump
+	    fi
+
 	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${dump} ${exepath} ${nproc} ${outdir}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
@@ -60,7 +62,6 @@ do
     do
 	echo "nohup ${cmd[jobid]} &> ${log[jobid]} &"
 	nohup ${cmd[jobid]} &> ${log[jobid]} &
-	#bash loop.sh $i &
 	jobid=$(bc <<< "$jobid + 1")
     done
     wait
