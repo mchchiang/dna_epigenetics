@@ -242,7 +242,7 @@ public class DNAModel {
 			stateWriter = new StateWriter(actualTime);
 		}
 		
-		if (stateFileName.equalsIgnoreCase("none")){
+		if (statsFileName.equalsIgnoreCase("none")){
 			statsWriter = new NullWriter();
 		} else {
 			statsWriter = new StatsWriter(actualTime);

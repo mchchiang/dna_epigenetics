@@ -14,6 +14,9 @@ public class NullWriter extends DataWriter {
 	public void openWriter(String filename){}
 	
 	@Override
+	public void openWriter(String filename, boolean append){}
+	
+	@Override
 	public void closeWriter(){}
 	
 	@Override
