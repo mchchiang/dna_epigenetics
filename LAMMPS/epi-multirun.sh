@@ -12,9 +12,10 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-max_iter=100000
-teq=1000000
-dump=dump
+max_iter=10
+teq=3000
+dumpxyz=dump
+dumpstate="nostate"
 exepath="../Java/build/classes/"
 outdir=${10}
 nproc=1
@@ -37,12 +38,12 @@ do
 	    runid=$(bc <<< "$run + $run_shift")
 
 	    if [ $runid = 1 ]; then
-		dump=nodump
+		dumpxyz=nodump
 	    else
-		dump=nodump
+		dumpxyz=nodump
 	    fi
 
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${dump} ${exepath} ${nproc} ${outdir}"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done

@@ -9,10 +9,11 @@ cut_off=$5
 max_iter=$6
 teq=$7
 run=$8
-dump=$9
-exepath=${10}
-nproc=${11}
-outdir=${12}     # output directory relative to current directory
+dumpxyz=$9
+dumpstate=${10}
+exepath=${11}
+nproc=${12}
+outdir=${13}     # output directory relative to current directory
 
 type_of_atoms=3
 
@@ -24,8 +25,11 @@ xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
 in_file="dna_${name}.in"
 out_file="dna_${name}.out"
-state_file="state_${name}.dat"
 stats_file="stats_${name}.dat"
+state_file="none"  
+if [ $dumpstate != "nostate" ]; then
+    state_file="state_${name}.dat"
+fi
 
 outdir="`pwd`/${outdir}"
 basedir=`pwd`
@@ -66,11 +70,11 @@ sed -i -- "s/EQUIL_FENE/${equil_fene}/g" $file
 sed -i -- "s/EQUIL_TOTAL/${teq}/g" $file
 
 # set whether to dump xyz files
-dump_flag=''
-if [ $dump != "dump" ]; then
-   dump_flag='#'
+dumpxyz_flag=''
+if [ $dumpxyz != "dump" ]; then
+   dumpxyz_flag='#'
 fi
-sed -i -- "s/DUMPFLAG/${dump_flag}/g" $file
+sed -i -- "s/DUMPFLAG/${dumpxyz_flag}/g" $file
 
 # clear any previous entries in the state and stats file
 if [ $state_file != "none" ]; then
@@ -101,7 +105,7 @@ if [ $stats_file != "none" ]; then
     mv $stats_file "${outdir}/${stats_file}"
 fi
 
-if [ $dump = "dump" ]; then
+if [ $dumpxyz = "dump" ]; then
     mv $xyz_file "${outdir}/${xyz_file}"
 fi
 
