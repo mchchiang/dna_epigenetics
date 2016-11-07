@@ -229,11 +229,12 @@ public class DNAModel {
 		int run = Integer.parseInt(args[4]);
 		int seed = 1;
 		long actualTime = Long.parseLong(args[5]);
-		boolean useLAMMPS = Boolean.parseBoolean(args[6]);
-		String fileFromLAMMPS = args[7];
-		String fileToLAMMPS = args[8];
-		String stateFileName = args[9];
-		String statsFileName = args[10];
+		boolean randomStates = Boolean.parseBoolean(args[6]);
+		boolean useLAMMPS = Boolean.parseBoolean(args[7]);
+		String fileFromLAMMPS = args[8];
+		String fileToLAMMPS = args[9];
+		String stateFileName = args[10];
+		String statsFileName = args[11];
 		
 		DataWriter stateWriter, statsWriter;
 		if (stateFileName.equalsIgnoreCase("none")){
@@ -259,8 +260,12 @@ public class DNAModel {
 			lammps.computePairwiseDistance();			
 			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
 			model.addListener(stateWriter);
-			model.addListener(statsWriter);
-			model.initState(lammps);
+			model.addListener(statsWriter);		
+			if (randomStates){
+				model.initState();
+			} else {
+				model.initState(lammps);
+			}		
 			model.run();
 			//update atom types in lammps
 			for (int i = 0; i < n; i++){
