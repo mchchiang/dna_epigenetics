@@ -236,6 +236,8 @@ public class DNAModel {
 		String stateFileName = args[10];
 		String statsFileName = args[11];
 		
+		System.out.println("Use random states: " + randomStates);
+		
 		DataWriter stateWriter, statsWriter;
 		if (stateFileName.equalsIgnoreCase("none")){
 			stateWriter = new NullWriter();
