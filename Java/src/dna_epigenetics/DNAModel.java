@@ -262,6 +262,7 @@ public class DNAModel {
 			model.addListener(stateWriter);
 			model.addListener(statsWriter);		
 			if (randomStates){
+				System.out.println("init random states.");
 				model.initState();
 			} else {
 				model.initState(lammps);
