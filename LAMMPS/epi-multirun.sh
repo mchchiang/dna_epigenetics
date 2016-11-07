@@ -12,14 +12,15 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-max_iter=10
-teq=3000
+max_iter=100000
+teq=1000000
 dumpxyz="dump"
 dumpstate="nostate"
 order="order"
 collapse="collapse"
 exepath="../Java/build/classes/"
 outdir=${10}
+nohup=${11}
 nproc=1
 
 cmd=()
@@ -34,7 +35,7 @@ do
     while (( $(bc <<< "$e <= $e_end") ))
     do
 	e=$(printf "%.2f" $e)
-	f=$(printf "%.1f" $f)
+	f=$(printf "%.2f" $f)
 	for (( run=1; run <= $max_run; run++ ))
 	do
 	    runid=$(bc <<< "$run + $run_shift")
@@ -63,8 +64,13 @@ while (( $(bc <<< "$jobid <= $total_jobs") ))
 do
     for ((i=1; i <= $max_job && $jobid <= $total_jobs ; i++))
     do
-	echo "nohup ${cmd[jobid]} &> ${log[jobid]} &"
-	nohup ${cmd[jobid]} &> ${log[jobid]} &
+	if [ $nohup = "true" ]; then
+	    echo "nohup ${cmd[jobid]} &> ${log[jobid]} &"
+	    nohup ${cmd[jobid]} &> ${log[jobid]} &
+	else
+	    echo "${cmd[jobid]} &"
+	    ${cmd[jobid]} &
+	fi
 	jobid=$(bc <<< "$jobid + 1")
     done
     wait
