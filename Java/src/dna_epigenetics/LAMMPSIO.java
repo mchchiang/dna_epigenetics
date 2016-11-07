@@ -21,7 +21,7 @@ public class LAMMPSIO {
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 	
 	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
-			double lx, double ly, double lz, int seed){
+			double lx, double ly, double lz, int seed, boolean randomType){
 		this.numOfAtoms = numOfAtoms;
 		this.typesOfAtoms = typesOfAtoms;
 		this.lx = lx;
@@ -61,8 +61,15 @@ public class LAMMPSIO {
 		}
 		
 		//generate atom's type
-		for (int i = 0; i < numOfAtoms; i++){
-			 atomType[i] = rand.nextInt(typesOfAtoms)+1;
+		if (randomType){
+			for (int i = 0; i < numOfAtoms; i++){
+				 atomType[i] = rand.nextInt(typesOfAtoms)+1;
+			}
+		} else {
+			int type = rand.nextInt(2) * 2 + 1;
+			for (int i = 0; i < numOfAtoms; i++){
+				 atomType[i] = type;
+			}
 		}
 	}
 
@@ -336,9 +343,11 @@ public class LAMMPSIO {
 		double ly = Double.parseDouble(args[3]);
 		double lz = Double.parseDouble(args[4]);
 		int seed = Integer.parseInt(args[5]);
-		String file = args[6];
+		boolean randomType = Boolean.parseBoolean(args[6]);
+		String file = args[7];
 		LAMMPSIO io = new LAMMPSIO();
-		io.generateAtomData(numOfAtoms, typesOfAtoms, lx, ly, lz, seed);
+		io.generateAtomData(numOfAtoms, typesOfAtoms, 
+				lx, ly, lz, seed, randomType);
 		io.writeAtomData(file);
 	}
 }
