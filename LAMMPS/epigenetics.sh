@@ -87,6 +87,11 @@ cd ${exepath}
 
 # initialise dna strand (ordered/disordered)
 seed2=$(bc <<< "$seed+34987")
+if [ $order = "order" ]; then
+    order="true"
+else
+    order="false"
+fi
 java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $order $init_file
 
 # clear any previous entries in the state and stats file

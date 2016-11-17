@@ -114,6 +114,8 @@ run EQUIL_FENE
 # Run simulation for EQUIL_COLLAPSE steps to allow the system to start from a 
 # collapsed initial state. No re-colouring is performed in this time period. 
 
+variable seed equal SEED
+
 angle_style   cosine
 angle_coeff   1 3.0
 
@@ -143,11 +145,27 @@ write_data OUTFILE nocoeff
 ######################################################################################
 
 variable restarttime equal (EQUIL_TOTAL+EQUIL_COLLAPSE)
-variable seed equal SEED
+variable seed equal (${seed}+100)
 variable sweeps equal 1
 DUMPFLAGvariable posfile string "XYZFILE"
 
 DUMPFLAGshell > ${posfile}
+
+# initialise/randomise the state of each nucleosome
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF 0 RUN ${restarttime} true true OUTFILE INFILE none none
+
+clear
+
+units lj
+atom_style angle
+boundary        p p p 
+
+neighbor 0.3 bin 
+neigh_modify every 1 delay 1 check yes 
+
+read_data INFILE
+
+write_data OUTFILE nocoeff
 
 # now start epigentic modification
 
@@ -155,7 +173,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${restarttime} true OUTFILE INFILE STATEFILE STATSFILE
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${restarttime} false true OUTFILE INFILE STATEFILE STATSFILE
 
 clear
 

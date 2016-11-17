@@ -18,7 +18,7 @@ dumpxyz="dump"
 dumpstate="nostate"
 order="order"
 collapse="collapse"
-exepath="../Java/build/classes/"
+exepath="./"
 outdir=${10}
 nohup=${11}
 nproc=1
@@ -41,12 +41,12 @@ do
 	    runid=$(bc <<< "$run + $run_shift")
 
 	    if [ $runid = 1 ]; then
-		dumpxyz=nodump
+		dumpxyz=dump
 	    else
 		dumpxyz=nodump
 	    fi
 
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir}"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done

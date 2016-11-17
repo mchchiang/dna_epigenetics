@@ -1,6 +1,7 @@
 #PBS -l walltime=100:00:00
 #PBS -l place=excl
 #PBS -l select=10
+#PBS -q cm.7.day
 
 export PATH=$PATH:~/Documents/Courses/MPhys_Project/lammps-30Jul16/src/
 cd /Disk/ball_staging/s1309877/dna_epigenetics/LAMMPS/
@@ -8,7 +9,7 @@ cd /Disk/ball_staging/s1309877/dna_epigenetics/LAMMPS/
 echo 'Started at' `date`
 echo '-----------------------------------------------------------------------------'
 
-bash epi-multirun.sh 1.0 1.0 0.1 1.07 1.07 0.1 10 0 10 ./ false
+bash epi-multirun.sh 1.00 1.00 0.1 1.10 1.10 0.1 1 1 1 ./ false
 
 echo '-----------------------------------------------------------------------------'
 echo 'Finished at' `date`

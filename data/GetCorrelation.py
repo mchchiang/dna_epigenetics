@@ -7,6 +7,9 @@
 # is the dependent variable where the correlation operation 
 # should be performed.
 #
+# The (normalised) auto-correlation time is given by:
+# corr(t) = (<(m(t')m(t+t')> - <m>^2)/ corr(0)
+#
 
 import sys
 import numpy as np
@@ -14,35 +17,36 @@ import numpy as np
 args = sys.argv
 args.pop(0) #ignore self
 
-start_row = int(args.pop(0))
+tstart = int(args.pop(0))
 max_tau = int(args.pop(0))
 data_file = args.pop(0)
 output_file = args.pop(0)
 
-if (max_tau > y - start_row):
-    max_tau = y - start_row
-
 data = np.loadtxt(data_file, comments='#', delimiter=' ')
 
 time = data[:,0]
-values = data[:,1]
+value = data[:,1]
+
+tlen = len(time)
+tdelta = tlen - tstart
+
+if (max_tau > tdelta):
+    max_tau = tdelta
 
 avgSq = 0.0
 
-for i in xrange(y-start_row):
-    avgSq += values[i]
+for i in xrange(tstart, tlen):
+    avgSq += value[i]
     
-avgSq /= float(y-start_row)
+avgSq /= float(tdelta)
 avgSq *= avgSq
 
 result = []
 
 for tau in xrange(max_tau):
-    if (tau % 10000 == 0):
-        print tau
     total = 0.0
-    tmax = y - tau - start_row
-    for t in xrange(tmax):
+    tmax = tlen - tau
+    for t in xrange(tstart, tmax):
         total += value[t] * value[tau+t]
     total /= float(tmax)
     result.append(total - avgSq)
@@ -52,7 +56,7 @@ norm = result[0]
 writer = open(output_file, "w")
 
 for tau in xrange(max_tau):
-    output = "%d %.5f\n" % (tau, result[tau])
+    output = "%d %d %.5f\n" % (tau, time[tau], result[tau])
     writer.write(output)
 
 writer.close()
