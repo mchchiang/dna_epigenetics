@@ -152,7 +152,7 @@ group A type 1
 group U type 2
 group M type 3
 
-DUMPFLAGdump 3 all xyz 999 ${posfile}
+DUMPFLAGdump 3 all xyz PRINTFREQ ${posfile}
 DUMPFLAGdump_modify 3 element O N C append yes
 
 angle_style   cosine

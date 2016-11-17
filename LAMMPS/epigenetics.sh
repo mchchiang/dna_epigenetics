@@ -16,8 +16,9 @@ dumpstate=${12}  # nostate or state
 exepath=${13}    # execution path (../Java/build/classes/)
 nproc=${14}      # number of processes to run with
 outdir=${15}     # output directory relative to current directory
+print_freq=${16} # dump atoms' positions frequency
 
-type_of_atoms=3
+type_of_atoms=3  # types of atoms
 
 # generate a random seed for initialising dna and running lammps
 seed=$(python GetRandom.py 100000)
@@ -65,6 +66,7 @@ sed -i -- "s/OUTFILE/${out_file}/g" $file
 sed -i -- "s/LAMMPSFILE/${file}/g" $file
 sed -i -- "s/STATEFILE/${state_file}/g" $file
 sed -i -- "s/STATSFILE/${stats_file}/g" $file
+sed -i -- "s/PRINTFREQ/${print_freq}/g" $file
 
 # calculate equilibrium times
 equil_soft=1000
@@ -87,12 +89,13 @@ cd ${exepath}
 
 # initialise dna strand (ordered/disordered)
 seed2=$(bc <<< "$seed+34987")
+random_type="true"
 if [ $order = "order" ]; then
-    order="true"
+    random_type="false"
 else
-    order="false"
+    random_type="true"
 fi
-java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $order $init_file
+java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $init_file
 
 # clear any previous entries in the state and stats file
 if [ $state_file != "none" ]; then

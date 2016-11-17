@@ -1,7 +1,7 @@
 #!bin/bash
 
-L=150
-N=1000
+L=50
+N=100
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -14,14 +14,15 @@ run_shift=$8
 max_job=$9
 max_iter=100000
 teq=1000000
+order=${10}
+collapse=${11}
 dumpxyz="dump"
-dumpstate="nostate"
-order="order"
-collapse="collapse"
+dumpstate=${12}
 exepath="./"
-outdir=${10}
-nohup=${11}
+outdir=${13}
+nohup=${14}
 nproc=1
+print_freq=99999
 
 cmd=()
 log=()
@@ -43,10 +44,10 @@ do
 	    if [ $runid = 1 ]; then
 		dumpxyz=dump
 	    else
-		dumpxyz=nodump
+		dumpxyz=dump
 	    fi
 
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir}"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done
