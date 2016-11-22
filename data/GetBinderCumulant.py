@@ -1,5 +1,5 @@
 #
-# GetDistribution.py
+# GetBinderCumulant.py
 #
 # A script to find the distribution of values in a 
 # particular column of multiple data files.
@@ -13,9 +13,6 @@ args.pop(0) # ignore self
 
 time_col = int(args.pop(0))
 value_col = int(args.pop(0))
-min_val = float(args.pop(0))
-max_val = float(args.pop(0))
-binsize = float(args.pop(0))
 tstart = int(args.pop(0))
 freq = int(args.pop(0))
 output_file = args.pop(0)
@@ -26,16 +23,13 @@ if (time_col > value_col):
 else:
     max_col = value_col
 
-n = int(math.ceil((max_val - min_val) / binsize))
-
-distrb = []
-for i in xrange(n):
-    distrb.append(0)
-
 # open data files
 files = [open(i, "r") for i in args]
 
 count = 0
+
+avg2 = 0.0
+avg4 = 0.0
 
 for f in files:
     for line in f:
@@ -48,26 +42,17 @@ for f in files:
                 continue
             value = float(data[value_col])
             print time, value
-            col = int(math.floor((value - min_val) / binsize))
-            if (col < 0):
-                print "The value %.5f is less than min = %.5f" % (value, min_val)
-            elif (col >= n):
-                print "The value %.5f is greater than or equal to max = %.5f" % (value, max_val)
-            else:
-                distrb[col] += 1
-                count += 1
-            
+            avg2 += value ** 2
+            avg4 += value ** 4
+            count += 1
     f.close()
 
+avg2 /= float(count)
+avg4 /= float(count)
 
-for i in xrange(n):
-    distrb[i] /= float(count)
+bin_cum = 1 - (avg4 / (3 * avg2 * avg2))
 
 writer = open(output_file, "w")
-for i in xrange(n):
-    left = i * binsize + min_val
-    right = (i+1) * binsize + min_val
-    centre = (right - left) / 2.0 + left
-    output = "%.5f %.5f %.5f %.5f\n" % (left, right, centre, distrb[i])
-    writer.write(output)
+output = "%.5f\n" % bin_cum
+writer.write(output)
 
