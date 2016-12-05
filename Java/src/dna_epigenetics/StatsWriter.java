@@ -14,8 +14,9 @@ public class StatsWriter extends DataWriter {
 	
 	@Override
 	public void writeData(DNAModel model, int time) {
-		writer.printf("%d %.5f %d %d %d\n", actualTime+time, 
-				model.getG(),
+		double g = model.getG();
+		writer.printf("%d %.5f %.5f %d %d %d\n", actualTime+time, 
+				g, Math.abs(g), 				
 				model.getNumOfAStates(),
 				model.getNumOfUStates(),
 				model.getNumOfMStates());

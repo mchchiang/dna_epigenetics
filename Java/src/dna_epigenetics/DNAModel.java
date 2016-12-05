@@ -218,7 +218,7 @@ public class DNAModel {
 	public double getG(){
 		double m = numInState[2];
 		double a = numInState[0];
-		return Math.abs(m-a)/(m+a);
+		return (m-a)/(m+a);
 	}
 	
 	public static void main (String [] args) throws IOException{
