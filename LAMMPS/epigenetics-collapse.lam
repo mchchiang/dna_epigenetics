@@ -126,8 +126,8 @@ pair_modify     shift yes
 # make nucleosomes of same epigentic state attractive with
 # each other (except if the nucleosome is unmodified)
 pair_coeff	* * 1.0 1.0 1.12246152962189
-pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
-pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
+pair_coeff      1 1 5.0 1.0 CUTOFF
+pair_coeff      3 3 5.0 1.0 CUTOFF
 
 bond_style   fene
 
@@ -228,7 +228,7 @@ compute gyr all gyration
 timestep 0.01 #0.012
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
-thermo 1000
+thermo PRINTFREQ
 thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
 ############################################################################
 

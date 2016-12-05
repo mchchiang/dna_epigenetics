@@ -1,12 +1,11 @@
-
 #!/bin/bash
 
 #
 # Compute the average of multiple data sets
 #
 
-L=150
-N=1000
+L=100
+N=100
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -14,7 +13,7 @@ e_start=$4
 e_end=$5
 e_inc=$6
 rc=2.5
-max_iter=5000
+max_iter=10000
 teq=1000000
 outdir=${7}
 
@@ -25,8 +24,8 @@ do
     e=$e_start
     while (( $(bc <<< "$e <= $e_end") ))
     do
-	e=$(printf "%.1f" $e)
-	f=$(printf "%.1f" $f)
+	e=$(printf "%.2f" $e)
+	f=$(printf "%.2f" $f)
 	name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}"
 	
 	echo "Doing average for e = ${e} f = ${f}"

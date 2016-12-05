@@ -1,6 +1,6 @@
 #!bin/bash
 
-L=50
+L=100
 N=100
 f_start=$1
 f_end=$2
@@ -22,7 +22,7 @@ exepath="./"
 outdir=${13}
 nohup=${14}
 nproc=1
-print_freq=99999
+print_freq=10000
 
 cmd=()
 log=()
