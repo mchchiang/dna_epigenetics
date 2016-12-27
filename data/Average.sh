@@ -13,7 +13,7 @@ e_start=$4
 e_end=$5
 e_inc=$6
 rc=2.5
-max_iter=10000
+max_iter=100000
 teq=1000000
 outdir=${7}
 
@@ -33,7 +33,7 @@ do
 	python GetAverage.py "${outdir}/thermo_${name}_run_"*.dat "${outdir}/gyr_${name}_run_avg.dat" 0 10 $teq
 
 	# Average G factor (magnetisation)
-	python GetAverage.py "${outdir}/stats_${name}_run_"*.dat "${outdir}/mag_${name}_run_avg.dat" 0 1 0
+	python GetAverage.py "${outdir}/stats_${name}_run_"*.dat "${outdir}/mag_${name}_run_avg.dat" 0 2 0
 
 	# Average energy
 #	python GetAverage.py "${outdir}/thermo_${name}_run_*.dat ${outdir}/energy_${name}_run_avg.dat" 0 10 1000000

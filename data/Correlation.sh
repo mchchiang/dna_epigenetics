@@ -4,8 +4,8 @@
 # Compute the average of multiple data sets
 #
 
-L=100
-N=100
+L=150
+N=1000
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -15,7 +15,7 @@ e_inc=$6
 run_start=$7
 run_end=$8
 rc=2.5
-max_iter=10000
+max_iter=5000
 teq=1000000
 start_time=$9
 max_tau=${10}
@@ -29,9 +29,9 @@ do
     e=$e_start
     while (( $(bc <<< "$e <= $e_end") ))
     do
-	for ((run=run_start;run<run_end;run++)); do
-	    e=$(printf "%.2f" $e)
-	    f=$(printf "%.2f" $f)
+	for ((run=run_start;run<=run_end;run++)); do
+	    e=$(printf "%.1f" $e)
+	    f=$(printf "%.1f" $f)
 	    name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}"
 	
 	    echo "Calculating correlation for e = ${e} f = ${f} run = ${run}"

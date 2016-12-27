@@ -25,7 +25,6 @@ data_file = args.pop(0)
 output_file = args.pop(0)
 
 # Read data file and store average
-time = []
 value = []
 avg = 0.0
 with open(data_file, "r") as f:
@@ -34,38 +33,37 @@ with open(data_file, "r") as f:
             data = line.strip().split()
             if (data == [] or int(data[time_col]) < tstart): #ignore any lines start with \n
                 continue
-            time.append(int(data[time_col]))
-            value.append(float(data[value_col]))
-            avg += float(data[value_col])
+            m = float(data[value_col])
+            value.append(m)
+            avg += m
 
 avg /= float(len(value))
-
+avgSq = avg*avg
 
 # Compute auto-correlation
 corr = []
-tlen = len(time)
+vlen = len(value)
+print vlen
 
-maxi = max_tau / tinc
+maxi = int(max_tau / tinc)
 
-if (maxi > tlen):
-    maxi = tlen
+if (maxi > vlen):
+    maxi = vlen
 
 for i in xrange(maxi):
-#    if (i % 10 == 0):
-#        print "Doing iteration %d" % i
     cov = 0.0
-    for j in xrange(tlen-i):
+    for j in xrange(vlen-i):
        cov += value[j] * value[i+j]
-    cov /= float(tlen-i)
-    corr.append(cov - avg*avg)
+    cov /= float(vlen-i)
+    corr.append(cov - avgSq)
 
 # Rescale correlation by corr(0)
-for i in xrange(len(corr)):
-    corr[i] /= corr[0]
+#for i in xrange(len(corr)):
+#    corr[i] /= corr[0]
 
 writer = open(output_file, "w")
 for i in xrange(maxi):
-    output = "%d %.5f\n" % (i*tinc, corr[i])
+    output = "%d %.5f %.5f\n" % (i*tinc, corr[i], corr[i]/corr[0])
     writer.write(output)
 
 

@@ -45,7 +45,7 @@ file="epi_${name}.lam"
 # choose template depending on initial conditions (collasped/swollen)
 if [ $collapse = "collapse" ]; then
     cp epigenetics-collapse.lam $file
-    equil_collapse=10000
+    equil_collapse=1000000
     sed -i -- "s/EQUIL_COLLAPSE/${equil_collapse}/g" $file
 else 
     cp epigenetics-swollen.lam $file

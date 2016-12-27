@@ -1,0 +1,15 @@
+#PBS -l walltime=100:00:00
+#PBS -l place=excl
+#PBS -l select=10
+#PBS -q cdt.7.day
+
+export PATH=$PATH:~/Documents/Courses/MPhys_Project/lammps-30Jul16/src/
+cd /Disk/ball_staging/s1309877/dna_epigenetics/run/
+
+echo 'Started at' `date`
+echo '-----------------------------------------------------------------------------'
+
+nohup bash epigenetics.sh 150 1000 1.00 1.00 2.5 100000 1000000 12 order collapse nodump nostate ./ 1 ./
+
+echo '-----------------------------------------------------------------------------'
+echo 'Finished at' `date`

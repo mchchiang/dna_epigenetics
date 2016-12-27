@@ -41,13 +41,19 @@ for f in files:
     for line in f:
         if (not line.startswith("#")):
             data = line.strip().split()
+            
+            # Skip blank lines or if the line does not contain enough columns
             if (data == [] or len(data) < (max_col+1)):
                 continue
+                
             time = int(data[time_col])
+
+            # Skip data before start time or are not at the right time interval
             if (time < tstart or time % freq != 0):
                 continue
+
             value = float(data[value_col])
-            print time, value
+            
             col = int(math.floor((value - min_val) / binsize))
             if (col < 0):
                 print "The value %.5f is less than min = %.5f" % (value, min_val)

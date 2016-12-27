@@ -1,7 +1,7 @@
 #!bin/bash
 
-L=100
-N=100
+L=150
+N=1000
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -44,7 +44,7 @@ do
 	    if [ $runid = 1 ]; then
 		dumpxyz=dump
 	    else
-		dumpxyz=dump
+		dumpxyz=nodump
 	    fi
 
 	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"

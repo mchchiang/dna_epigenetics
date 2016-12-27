@@ -76,6 +76,14 @@ bond_style   harmonic
 bond_coeff   1   100.0   1.1 
 ###################################################################
 
+# quantities to compute/measure
+#compute gyr all gyration
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+#thermo 1000
+#thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+############################################################################
+
 ###
 # Set up fixes
 ###
@@ -86,7 +94,7 @@ fix 2 all   langevin   1.0 1.0   1.0   267 ###Langevin integrator Tstart Tstop 1
 ###
 # set timestep of integrator
 ###
-timestep 0.01 
+timestep 0.01 #0.012
 
 ###
 # run integration for a number of steps
@@ -109,63 +117,19 @@ bond_coeff   1   30.0   1.6   1.0   1.0
 
 run EQUIL_FENE
 
-#######################################################################################
-
-# Run simulation for EQUIL_COLLAPSE steps to allow the system to start from a 
-# collapsed initial state. No re-colouring is performed in this time period. 
-
-variable seed equal SEED
-
-angle_style   cosine
-angle_coeff   1 3.0
-
-pair_style      lj/cut 1.12246152962189
-
-pair_modify     shift yes
-
-# make nucleosomes of same epigentic state attractive with
-# each other (except if the nucleosome is unmodified)
-pair_coeff	* * 1.0 1.0 1.12246152962189
-pair_coeff      1 1 10.0 1.0 CUTOFF
-pair_coeff      3 3 10.0 1.0 CUTOFF
-
-bond_style   fene
-
-special_bonds fene
-
-bond_coeff   1   30.0   1.6   1.0   1.0
-
-fix 1 all   nve  
-fix 2 all   langevin   1.0 1.0   1.0  ${seed}
-
-run EQUIL_COLLAPSE
-
 write_data OUTFILE nocoeff
 
-######################################################################################
-
-variable restarttime equal (EQUIL_TOTAL+EQUIL_COLLAPSE)
-variable seed equal (${seed}+100)
+variable restarttime equal EQUIL_TOTAL
+variable equiltime equal EQUIL_TOTAL
+variable totaltime equal (MAXITER * 1000)
+variable halftime equal (${totaltime} / 2)
+variable seed equal SEED
 variable sweeps equal 1
+variable energy equal 0.450
+variable einc equal 0.001
 DUMPFLAGvariable posfile string "XYZFILE"
 
 DUMPFLAGshell > ${posfile}
-
-# initialise/randomise the state of each nucleosome
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF 0 RUN ${restarttime} true true OUTFILE INFILE none none
-
-clear
-
-units lj
-atom_style angle
-boundary        p p p 
-
-neighbor 0.3 bin 
-neigh_modify every 1 delay 1 check yes 
-
-read_data INFILE
-
-write_data OUTFILE nocoeff
 
 # now start epigentic modification
 
@@ -206,8 +170,8 @@ pair_modify     shift yes
 # make nucleosomes of same epigentic state attractive with
 # each other (except if the nucleosome is unmodified)
 pair_coeff	* * 1.0 1.0 1.12246152962189
-pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
-pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
+pair_coeff      1 1 ${energy} 1.0 CUTOFF
+pair_coeff      3 3 ${energy} 1.0 CUTOFF
 
 bond_style   fene
 
@@ -229,7 +193,7 @@ timestep 0.01 #0.012
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
 thermo PRINTFREQ
-thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr v_energy
 ############################################################################
 
 run 1000
@@ -238,6 +202,13 @@ write_data OUTFILE nocoeff
 
 variable restarttime equal (${restarttime}+1000)
 variable seed equal (${seed}+100)
+variable simtime equal (${restarttime}-${equiltime})
+variable remainder equal (${simtime} % ${einctime})
+
+if "${remainder} == 0 && ${simtime} <= ${halftime}" then &
+   "variable energy equal (${energy}+${einc}) &
+else &
+   "variable energy equal (${energy}-${einc})      
 
 next loopindex
 
