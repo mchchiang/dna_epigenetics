@@ -16,10 +16,11 @@ public class StateWriter extends DataWriter {
 	public void writeData(DNAModel model, int time) {
 		int n = model.getNumOfNucleosomes();
 		long totalTime = actualTime + time;
+		writer.printf("%d\n", totalTime);
 		for (int i = 0; i < n; i++){
-			writer.printf("%d %d %d\n", totalTime, (i+1), model.getState(i));
+			writer.printf("%d %d\n", (i+1), model.getState(i));
 		}
-		writer.printf("\n\n");
+		writer.printf("\n");
 	}
 
 }
