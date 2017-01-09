@@ -1,0 +1,48 @@
+A list of data format changes over different simulations
+
+N.B. 1 brownian time unit = 1 tau_br
+
+=======================================================================
+
+Files have the following format
+
+stats file:
+time (M-A)/(M+A) |M-A|/(M+A) A U M
+
+state file:
+time bead# state(1,2,3=A,U,M)
+
+thermo file:
+time  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr (v_energy)
+
+vmd file:
+time
+atom# x y z
+
+=======================================================================
+
+For all data files in data_f_1.0/, data_f_2.0/, and phase_diagram/
+
+- the t value in file name =  number of loop iterations, each loop = number of recolouring steps (1 simulation step = 0.01 tau_br)
+- the step value is used as the time unit for all files (1 simulation step = 0.01 tau_br)
+
+=======================================================================
+
+For state files in data_f_1.0/ and data_f_2.0/
+
+- the current step value is stored next to every bead state
+
+=======================================================================
+
+For state files in phase_diagram/
+
+- the current step value is stored once at the top when printing the state of every bead in each printing step
+
+=======================================================================
+
+For data files in hysteresis/ onwards
+
+- the t value in file name = total simulation time in brownian time unit (tau_br)
+- the brownian time unit (tau_br) is used as the time unit for all files
+- the time values is shifted to zero by the equilibration time (teq)
+- the current step value is stored once at the top when printing the state of every bead in each printing step

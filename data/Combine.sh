@@ -3,7 +3,7 @@
 # A script to combine the measured gyration radius and the magnetisation
 
 L=100
-N=200
+N=100
 rc=2.5
 
 f_start=$1
@@ -17,7 +17,8 @@ run_end=$8
 run_inc=$9
 outdir=${10}
 
-max_iter=100000
+#max_iter=100000 #old format
+max_iter=1000000 #new format
 
 f=$f_start
 
@@ -38,7 +39,8 @@ do
 	    combinedfile="${outdir}/gyr-mag_${name}.dat"
 	    > $combinedfile
 	    
-	    paste -d ' ' <(awk 'NR>2 {print $1 " " $11}' $thermofile) <(awk '{printf "%.5f %.5f %.5f\n",$2,$3,($6-$4)/($4+$5+$6)}' $statsfile) > $combinedfile
+#	    paste -d ' ' <(awk 'NR>2 {print $1 " " $11}' $thermofile) <(awk '{printf "%.5f %.5f %.5f\n",$2,$3,($6-$4)/($4+$5+$6)}' $statsfile) > $combinedfile #old format
+	    paste -d ' ' <(awk '{print $1 " " $11}' $thermofile) <(awk '{printf "%.5f %.5f %.5f\n",$2,$3,($6-$4)/($4+$5+$6)}' $statsfile) > $combinedfile #new format
 
 	done
 	

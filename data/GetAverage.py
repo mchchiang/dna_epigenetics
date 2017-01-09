@@ -5,10 +5,11 @@ import math
 args = sys.argv
 args.pop(0) #ignore self
 
-startpt = int(args.pop())
-avg_col = int(args.pop())
-ref_col = int(args.pop())
-output_file = args.pop()
+ref_col = int(args.pop(0))
+avg_col = int(args.pop(0))
+err_col = int(args.pop(0))
+startpt = int(args.pop(0))
+output_file = args.pop(0)
 
 files = [open(i, "r") for i in args]
 writer = open(output_file, "w")
@@ -17,6 +18,7 @@ for rows in izip(*files):
     ref = 0.0
     avg = 0.0
     avgSq = 0.0
+    error = 0.0
     hasData = False
 
     for line in rows:
@@ -25,22 +27,38 @@ for rows in izip(*files):
             if (data == []): #ignore any lines start with \n
                 break
             
-            ref = int(data[ref_col])
-            if (ref >= startpt):
+            if (ref_col != -1):
+                ref = int(data[ref_col])
+
+            if (ref_col == -1 or ref >= startpt):
                 value = float(data[avg_col])
                 avg += value
-                avgSq += value * value
+                avgSq += value*value
+
+                if (err_col != -1):
+                    sigma = float(data[err_col])
+                    error += sigma*sigma
+
                 hasData = True
 
     if (hasData == True):
         n = float(len(rows))
         avg /= n
         avgSq /= n
+
         # use un-biased estimate of variance
         var = n / (n-1) * (avgSq - avg*avg)
         sigma = math.sqrt(var) 
-        error = sigma / math.sqrt(n)
-        output = "%d %.5f %.5f %.5f\n" % (ref, avg, sigma,  error)
+        
+        if (err_col != -1):
+            error = math.sqrt(error) / n
+        else:
+            error = sigma / math.sqrt(n)
+        
+        if (ref_col == -1):
+            output = "%.5f %.5f %.5f\n" % (avg, sigma,  error)
+        else:
+            output = "%d %.5f %.5f %.5f\n" % (ref, avg, sigma,  error)
         writer.write(output)
 
 for f in files:

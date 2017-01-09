@@ -5,7 +5,7 @@
 #
 
 L=100
-N=200
+N=100
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -13,21 +13,25 @@ e_start=$4
 e_end=$5
 e_inc=$6
 rc=2.5
-max_iter=100000
-tstart=3000000
-freq=100000
+#max_iter=100000 #old format
+max_iter=1000000 #new format
+#tstart=3000000 #old format
+tstart=10000 #new format
+#freq=100000 #old format
+freq=10000 #new format
 outdir=$7
-xbin=0.05
-ybin=0.1
+#xbin=0.05
+xbin=0.1
+#ybin=0.1
+ybin=0.5
 xmin="-1.1"
 xmax="1.1"
 ymin=2
-ymax=25
+ymax=20
 xcol=4
 ycol=1
 tcol=0
 
-#python GetDistribution2D.py 0 1 4 2 16 -1.1 1.1 0.1 0.1 3000000 100000 data_f_2.0/run10_N_100_t_100000/prob_L_100_N_100_f_2.00_e_0.66_rc_2.5_t_100000.dat data_f_2.0/run10_N_100_t_100000/gyr-mag_L_100_N_100_f_2.00_e_0.66_rc_2.5_t_100000_run_*.dat
 
 f=$f_start
 
