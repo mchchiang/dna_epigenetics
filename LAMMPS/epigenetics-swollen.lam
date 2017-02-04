@@ -128,6 +128,8 @@ DUMPFLAGvariable posfile string "XYZFILE"
 
 DUMPFLAGshell > ${posfile}
 
+reset_timestep ${restarttime}
+
 ###################################################################
 
 variable loopindex loop MAXITER

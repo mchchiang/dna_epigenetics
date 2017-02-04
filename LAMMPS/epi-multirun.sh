@@ -1,7 +1,7 @@
 #!bin/bash
 
-L=100
-N=100
+L=150
+N=1000
 f_start=$1
 f_end=$2
 f_inc=$3
