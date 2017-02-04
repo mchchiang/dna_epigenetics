@@ -4,8 +4,8 @@
 # Compute the average of multiple data sets
 #
 
-L=100
-N=100
+L=150
+N=600
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -15,12 +15,16 @@ e_inc=$6
 run_start=$7
 run_end=$8
 rc=2.5
+#max_iter=100000
 max_iter=1000000
-teq=1000000
-start_time=$9
-max_tau=${10}
-tinc=1000
-outdir=${11}
+#teq=1000000
+teq=10000
+#start_time=5000000
+start_time=50000
+max_tau=100000
+#tinc=1000
+tinc=10
+outdir=$9
 
 f=$f_start
 
@@ -37,7 +41,7 @@ do
 	    echo "Calculating correlation for e = ${e} f = ${f} run = ${run}"
 	    
 	    # Correlation for gyration radius
-	    python GetCorrelation.py $start_time $max_tau $tinc 0 1 "${outdir}/stats_${name}_run_${run}.dat" "${outdir}/corr_mag_${name}_run_${run}.dat"
+	    python GetCorrelation.py $start_time $max_tau $tinc 0 10 "${outdir}/thermo_${name}_run_${run}.dat" "${outdir}/corr_thermo_${name}_run_${run}.dat"
 	
 	done
 	

@@ -1,7 +1,7 @@
 #!bin/bash
 
-L=150
-N=1000
+L=100
+N=100
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -12,17 +12,18 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-max_iter=100000
-teq=1000000
-order=${10}
-collapse=${11}
+tmax=1000000
+teq=10000
+tcolour=10
+order="disorder"
+collapse="swollen"
 dumpxyz="dump"
-dumpstate=${12}
+dumpstate="state"
 exepath="./"
-outdir=${13}
-nohup=${14}
+outdir=${10}
+nohup=${11}
 nproc=1
-print_freq=10000
+print_freq=100
 
 cmd=()
 log=()
@@ -41,14 +42,13 @@ do
 	do
 	    runid=$(bc <<< "$run + $run_shift")
 
-	    if [ $runid = 1 ]; then
-		dumpxyz=dump
-	    else
-		dumpxyz=nodump
+	    if [ $runid != 1 ]; then
+		dumpxyz="nodump"
+		dumpstate="nostate"
 	    fi
 
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${max_iter} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
-	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${runid}.log"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${tcolour} ${tmax} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
+	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${tmax}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done
 	

@@ -1,13 +1,11 @@
-###
+###################################################################
 # Reference paper:
 # K. Kremer and G. S. Grest
 # Dynamics of entangled linear polymer melts: A molecular-dynamics simulation
 # J Chem Phys 92, 5057 (1990)
-###
+###################################################################
 
-###
 # Box and units  (use LJ units and periodic boundaries)
-###
 
 units lj
 
@@ -15,37 +13,40 @@ atom_style angle #with stiffness
 
 boundary        p p p 
 
-###
+###################################################################
+
 # Pair interactions require lists of neighbours to be calculated
-###
+
 neighbor 1.9 bin #sets skin for neighbour list
 neigh_modify every 1 delay 1 check yes 
+
+###################################################################
 
 ### Generate RESTART file, SPECIAL format, not a .txt file ###
 ### Useful if simulation crashes ###
 restart 1000000 DNA.restart
-#############################
 
-#processors 2 1 1 #to choose decomposition 
+###################################################################
 
-### READ "start" data file ###
+# READ "start" data file
 read_data INITFILE
-######################
 
-### reset timestep ###
+###################################################################
+
+# reset timestep
 reset_timestep 0 
-######################
 
+###################################################################
 
-###
-# Define groups (atom type 1 is group 'all')
-##
+# Define groups
+
 group all type 1 2 3
 group A type 1
 group U type 2
 group M type 3
 
 ###################################################################
+
 # Stiffness term
 #
 # E = K * (1+cos(theta)), K>0
@@ -54,9 +55,9 @@ group M type 3
 
 angle_style   cosine
 angle_coeff   1 20.0
-###################################################################
 
 ###################################################################
+
 # Pair interaction between non-bonded atoms
 # use soft potential for equilibration
 # E = A*(1+cos(pi*r/rc)
@@ -64,9 +65,9 @@ angle_coeff   1 20.0
 
 pair_style     soft 1.12246152962189
 pair_coeff * * 100.0 1.12246152962189
-###################################################################
 
 ###################################################################
+
 # Pair interaction between bonded atoms
 # use harmonic potential for equilibration
 # E = K*(r-r0)^2
@@ -74,24 +75,27 @@ pair_coeff * * 100.0 1.12246152962189
 
 bond_style   harmonic 
 bond_coeff   1   100.0   1.1 
+
 ###################################################################
 
-###
 # Set up fixes
-###
 
 fix 1 all   nve   ###NVE ensemble
 fix 2 all   langevin   1.0 1.0   1.0   267 ###Langevin integrator Tstart Tstop 1/friction rndseed
 
-###
-# set timestep of integrator
-###
-timestep 0.01 
+###################################################################
 
-###
+# set timestep of integrator
+
+timestep DELTAT
+
+###################################################################
+
 # run integration for a number of steps
-###
+
 run EQUIL_SOFT
+
+###################################################################
 
 # equilibrate with fene potential and change dna stiffness
 
@@ -109,10 +113,11 @@ bond_coeff   1   30.0   1.6   1.0   1.0
 
 run EQUIL_FENE
 
-#######################################################################################
+###################################################################
+###################################################################
 
-# Run simulation for EQUIL_COLLAPSE steps to allow the system to start from a 
-# collapsed initial state. No re-colouring is performed in this time period. 
+# Run simulation for EQUIL_COLLAPSE steps to allow the system to start from a
+# collapsed initial state. No re-colouring is performed in this time period.
 
 variable seed equal SEED
 
@@ -125,7 +130,7 @@ pair_modify     shift yes
 
 # make nucleosomes of same epigentic state attractive with
 # each other (except if the nucleosome is unmodified)
-pair_coeff	* * 1.0 1.0 1.12246152962189
+pair_coeff      * * 1.0 1.0 1.12246152962189
 pair_coeff      1 1 10.0 1.0 CUTOFF
 pair_coeff      3 3 10.0 1.0 CUTOFF
 
@@ -135,16 +140,18 @@ special_bonds fene
 
 bond_coeff   1   30.0   1.6   1.0   1.0
 
-fix 1 all   nve  
+fix 1 all   nve
 fix 2 all   langevin   1.0 1.0   1.0  ${seed}
 
 run EQUIL_COLLAPSE
 
 write_data OUTFILE nocoeff
 
-######################################################################################
+###################################################################
+###################################################################
 
-variable restarttime equal (EQUIL_TOTAL+EQUIL_COLLAPSE)
+variable restarttime equal 0
+variable btime equal (step*DELTAT)
 variable seed equal (${seed}+100)
 variable sweeps equal 1
 DUMPFLAGvariable posfile string "XYZFILE"
@@ -152,20 +159,24 @@ DUMPFLAGvariable posfile string "XYZFILE"
 DUMPFLAGshell > ${posfile}
 
 # initialise/randomise the state of each nucleosome
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF 0 RUN ${restarttime} true true OUTFILE INFILE none none
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF 0 RUN ${btime} true true OUTFILE INFILE none none
 
 clear
 
 units lj
 atom_style angle
-boundary        p p p 
+boundary        p p p
 
-neighbor 0.3 bin 
-neigh_modify every 1 delay 1 check yes 
+neighbor 0.3 bin
+neigh_modify every 1 delay 1 check yes
 
 read_data INFILE
 
+reset_timestep ${restarttime}
+
 write_data OUTFILE nocoeff
+
+###################################################################
 
 # now start epigentic modification
 
@@ -173,7 +184,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${restarttime} false true OUTFILE INFILE STATEFILE STATSFILE
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${btime} false true OUTFILE INFILE STATEFILE STATSFILE
 
 clear
 
@@ -196,6 +207,10 @@ group M type 3
 DUMPFLAGdump 3 all xyz PRINTFREQ ${posfile}
 DUMPFLAGdump_modify 3 element O N C append yes
 
+###################################################################
+
+# potentials to use
+
 angle_style   cosine
 angle_coeff   1 3.0
 
@@ -211,13 +226,11 @@ pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
 
 bond_style   fene
 
-special_bonds fene #<=== I M P O R T A N T (new command)
+special_bonds fene
 
 bond_coeff   1   30.0   1.6   1.0   1.0
 
-###
-# Set up fixes
-###
+###################################################################
 
 fix 1 all   nve  
 fix 2 all   langevin   1.0 1.0   1.0  ${seed}
@@ -225,18 +238,21 @@ fix 2 all   langevin   1.0 1.0   1.0  ${seed}
 # quantities to compute/measure
 compute gyr all gyration
 
-timestep 0.01 #0.012
+timestep DELTAT
+
+###################################################################
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
 thermo PRINTFREQ
-thermo_style   custom   step  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
-############################################################################
+thermo_style   custom   v_btime  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
 
-run 1000
+###################################################################
+
+run COLOURSTEP
 
 write_data OUTFILE nocoeff
 
-variable restarttime equal (${restarttime}+1000)
+variable restarttime equal (${restarttime}+COLOURSTEP)
 variable seed equal (${seed}+100)
 
 next loopindex

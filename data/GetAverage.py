@@ -28,7 +28,7 @@ for rows in izip(*files):
                 break
             
             if (ref_col != -1):
-                ref = int(data[ref_col])
+                ref = float(data[ref_col])
 
             if (ref_col == -1 or ref >= startpt):
                 value = float(data[avg_col])
@@ -58,7 +58,7 @@ for rows in izip(*files):
         if (ref_col == -1):
             output = "%.5f %.5f %.5f\n" % (avg, sigma,  error)
         else:
-            output = "%d %.5f %.5f %.5f\n" % (ref, avg, sigma,  error)
+            output = "%.5f %.5f %.5f %.5f\n" % (ref, avg, sigma,  error)
         writer.write(output)
 
 for f in files:

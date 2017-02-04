@@ -13,8 +13,9 @@ args = sys.argv
 args.pop(0) #ignore self
 
 tstart = int(args.pop(0)) # first sampled point
+tinc = int(args.pop(0)) # time increment
+teinc = int(args.pop(0)) # time between energy increment
 tsample = int(args.pop(0)) # auto-correlation time
-tinc = int(args.pop(0)) # energy increment time
 time_col = int(args.pop(0)) # time column
 value_col = int(args.pop(0)) # data column
 energy_col = int(args.pop(0)) # energy column
@@ -25,31 +26,58 @@ output_file = args.pop(0) # output file name
 avg = 0.0
 avgSq = 0.0
 n = 0
-energy = 0
-tcount = 0
+tconst = tstart
+value = 0
+count = 0
+estart = 0.45
+eend = 0.85
+einc = 0.001
+e = estart
+esign = 1.0
+
+writer = open(output_file, "w")
+
 with open(data_file, "r") as f:
     for line in f:
         if (not line.startswith("#")):
             data = line.strip().split()
+
             if (data == [] or int(data[time_col]) < tstart): #ignore any lines start with \n
                 continue
-            e = float(data[energy_col])
-            if (e != energy):
-                tcount = 0
-            value = float(data[value_col])
-            
-            avg += value
-            avgSq += value*value
 
-avg /= float(n)
-avgSq /= float(n)
+            t = int(data[time_col])
+            #e = float(data[energy_col])
+            dt = t - tconst
+           
+            if (dt % tsample == 0):
+                value = float(data[value_col])
+                avg += value
+                avgSq += value*value
+                n += 1
+#                print t, value, e, n
 
-# Compute error (use unbiased estimate for standard deviation)
-var = n / (n-1) * (avgSq - avg*avg)
-sigma = math.sqrt(var) 
-error = sigma / math.sqrt(n)
+            if ((t+tinc) % teinc == 0):
+                tconst = t+tinc
+                
+                # Compute error (use unbiased estimate for standard deviation)
+                n = float(n)
+                avg /= n
+                avgSq /= n
+                var = n / (n-1) * (avgSq - avg*avg)
+                sigma = math.sqrt(var) 
+                error = sigma / math.sqrt(n)
 
-writer = open(output_file, "w")
-output = "%.5f %.5f %.5f\n" % (avg, sigma, error)
-writer.write(output)
+
+                output = "%.5f %.5f %.5f %.5f\n" % (e, avg, sigma, error)
+                writer.write(output)
+
+                # Reset
+                avg = 0.0
+                avgSq = 0.0
+                n = 0
+                if (abs(e - eend) < 0.0000001):
+                    esign *= -1.0
+                print esign
+                e += (esign*einc)
+
 writer.close()

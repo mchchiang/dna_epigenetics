@@ -6,25 +6,30 @@ num_of_atoms=$2  # number of atoms
 ratio=$3         # feedback ratio in Sneppen model (i.e. F = alpha / (1 - alpha) )
 bond_energy=$4   # bond energy in pairwise potential
 cut_off=$5       # pairwise potential cut-off parameter
-max_iter=$6      # maximum number of loop iterations in lammps
-teq=$7           # total equlibration steps
-run=$8           # trial number
-order=$9         # order or disorder
-collapse=${10}   # collapse or swollen
-dumpxyz=${11}    # dump or nodump
-dumpstate=${12}  # nostate or state
-exepath=${13}    # execution path (../Java/build/classes/)
-nproc=${14}      # number of processes to run with
-outdir=${15}     # output directory relative to current directory
-print_freq=${16} # dump atoms' positions frequency
+tcolour=$6       # recolour time (in Brownian time units)
+tmax=$7          # maximum simulation time (in Brownian time units), must be multiple of tcolour 
+teq=$8           # total equlibration steps
+run=$9           # trial number
+order=${10}      # order or disorder
+simtype=${11}    # collapse, swollen, or hysteresis
+dumpxyz=${12}    # dump or nodump
+dumpstate=${13}  # nostate or state
+exepath=${14}    # execution path (../Java/build/classes/)
+nproc=${15}      # number of processes to run with
+outdir=${16}     # output directory relative to current directory
+print_freq=${17} # dump atoms' positions frequency (in Brownian time units)
 
 type_of_atoms=3  # types of atoms
+delta_t=0.01     # time step size in Brownian time units
+colour_step=$(bc <<< "$tcolour/$delta_t")
+max_iter=$(bc <<< "$tmax/$delta_t/$colour_step")
+print_freq=$(bc <<< "$print_freq/$delta_t")  # actual print frequency in simulation steps
 
 # generate a random seed for initialising dna and running lammps
 seed=$(python GetRandom.py 100000)
 
 # generate the data/output file names
-name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${max_iter}_run_${run}"
+name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${tmax}_run_${run}"
 thermo_file="thermo_${name}.dat"
 xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
@@ -43,10 +48,17 @@ basedir=`pwd`
 file="epi_${name}.lam"
 
 # choose template depending on initial conditions (collasped/swollen)
-if [ $collapse = "collapse" ]; then
+if [ $simtype = "collapse" ]; then
     cp epigenetics-collapse.lam $file
-    equil_collapse=1000000
+    teq_collapse=10000
+    equil_collapse=$(bc <<< "${teq_collapse}/${delta_t}")
     sed -i -- "s/EQUIL_COLLAPSE/${equil_collapse}/g" $file
+elif [ $simtype = "hysteresis" ]; then
+    cp epigenetics-hysteresis.lam $file
+    teq_colour=30000
+    equil_colour=$(bc <<< "${teq_colour}/${delta_t}")
+    max_iter=$(bc <<< "(${tmax}+${teq_colour})/$delta_t/$colour_step")
+    sed -i -- "s/EQUIL_COLOUR/${equil_colour}/g" $file
 else 
     cp epigenetics-swollen.lam $file
 fi
@@ -57,6 +69,7 @@ sed -i -- "s/RATIO/${ratio}/g" $file
 sed -i -- "s/BONDENERGY/${bond_energy}/g" $file
 sed -i -- "s/CUTOFF/${cut_off}/g" $file
 sed -i -- "s/MAXITER/${max_iter}/g" $file
+sed -i -- "s/COLOURSTEP/${colour_step}/g" $file
 sed -i -- "s/SEED/${seed}/g" $file
 sed -i -- "s/RUN/${run}/g" $file
 sed -i -- "s/XYZFILE/${xyz_file}/g" $file
@@ -67,14 +80,17 @@ sed -i -- "s/LAMMPSFILE/${file}/g" $file
 sed -i -- "s/STATEFILE/${state_file}/g" $file
 sed -i -- "s/STATSFILE/${stats_file}/g" $file
 sed -i -- "s/PRINTFREQ/${print_freq}/g" $file
+sed -i -- "s/DELTAT/${delta_t}/g" $file
 
 # calculate equilibrium times
-equil_soft=1000
-equil_fene=$(bc <<< "$teq-$equil_soft")
+t_soft=10 # equilibrate time with soft potential (in Brownian time units)
+equil_soft=$(bc <<< "$t_soft/$delta_t")
+equil_total=$(bc <<< "$teq/$delta_t")
+equil_fene=$(bc <<< "$equil_total-$equil_soft")
 
 sed -i -- "s/EQUIL_SOFT/${equil_soft}/g" $file
 sed -i -- "s/EQUIL_FENE/${equil_fene}/g" $file
-sed -i -- "s/EQUIL_TOTAL/${teq}/g" $file
+sed -i -- "s/EQUIL_TOTAL/${equil_total}/g" $file
 
 # set whether to dump xyz files
 dumpxyz_flag=''

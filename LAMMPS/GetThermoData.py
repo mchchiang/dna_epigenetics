@@ -13,7 +13,7 @@ writer = open(output_file, "w")
 foundLine = False
 count = 0
 for line in reader:
-    if (line.startswith("Step")):
+    if (line.startswith("btime")):
         foundLine = True
     if (foundLine):
         count += 1

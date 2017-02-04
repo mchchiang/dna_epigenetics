@@ -118,15 +118,26 @@ write_data OUTFILE nocoeff
 ###################################################################
 ###################################################################
 
-# now start epigentic modification
+# now start epigentic modification (with hysteresis)
 
+variable colourtime equal EQUIL_COLOUR
 variable restarttime equal 0
-variable btime equal (step*DELTAT)
+variable btime equal ((step-${colourtime})*DELTAT)
+
+variable estart equal 0.500
+variable eend equal 1.000
+variable einc equal 0.001
+variable eiter equal ((${eend}-${estart})/${einc})
+variable energy equal 0.500
+variable einctime equal ((MAXITER*COLOURSTEP-${colourtime})/2/${eiter})
+
 variable seed equal SEED
 variable sweeps equal 1
 DUMPFLAGvariable posfile string "XYZFILE"
 
 DUMPFLAGshell > ${posfile}
+
+reset_timestep ${restarttime}
 
 ###################################################################
 
@@ -171,8 +182,8 @@ pair_modify     shift yes
 # make nucleosomes of same epigentic state attractive with
 # each other (except if the nucleosome is unmodified)
 pair_coeff	* * 1.0 1.0 1.12246152962189
-pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
-pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
+pair_coeff      1 1 ${energy} 1.0 CUTOFF
+pair_coeff      3 3 ${energy} 1.0 CUTOFF
 
 bond_style   fene
 
@@ -194,7 +205,7 @@ timestep DELTAT
 
 ##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
 thermo PRINTFREQ
-thermo_style   custom   v_btime  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+thermo_style   custom   v_btime  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr v_energy
 
 ###################################################################
 
@@ -204,6 +215,14 @@ write_data OUTFILE nocoeff
 
 variable restarttime equal (${restarttime}+COLOURSTEP)
 variable seed equal (${seed}+100)
+variable simtime equal (${restarttime}-${colourtime})
+variable remainder equal (${simtime}%${einctime})
+variable halftime equal ((MAXITER*COLOURSTEP-${colourtime})/2)
+
+if "${simtime} > 0 && ${remainder} == 0 && ${simtime} <= ${halftime}" then &
+   "variable energy equal (${energy}+${einc})" &
+elif "${simtime} > 0 && ${remainder} == 0 && ${simtime} > ${halftime}" &
+   "variable energy equal (${energy}-${einc})"
 
 next loopindex
 

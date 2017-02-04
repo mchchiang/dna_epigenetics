@@ -4,8 +4,8 @@
 # Compute the average of multiple data sets
 #
 
-L=100
-N=100
+L=150
+N=600
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -16,18 +16,20 @@ rc=2.5
 #max_iter=100000 #old format
 max_iter=1000000 #new format
 #tstart=3000000 #old format
-tstart=10000 #new format
+tstart=50000 #new format
 #freq=100000 #old format
-freq=10000 #new format
+freq=10 #new format
 outdir=$7
 #xbin=0.05
-xbin=0.1
+#xbin=0.05
+xbin=0.05
 #ybin=0.1
+#ybin=0.5
 ybin=0.5
 xmin="-1.1"
 xmax="1.1"
-ymin=2
-ymax=20
+ymin=0
+ymax=50
 xcol=4
 ycol=1
 tcol=0

@@ -35,8 +35,9 @@ with open(data_file, "r") as f:
             avg += value
             avgSq += value*value
 
-avg /= float(n)
-avgSq /= float(n)
+n = float(n)
+avg /= n
+avgSq /= n
 
 # Compute error (use unbiased estimate for standard deviation)
 var = n / (n-1) * (avgSq - avg*avg)

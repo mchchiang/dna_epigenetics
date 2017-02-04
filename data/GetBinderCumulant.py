@@ -41,7 +41,7 @@ for f in files:
             if (time < tstart or time % freq != 0):
                 continue
             value = float(data[value_col])
-            print time, value
+#            print time, value
             avg2 += value ** 2
             avg4 += value ** 4
             count += 1

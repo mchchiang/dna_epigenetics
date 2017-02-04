@@ -43,7 +43,7 @@ avgSq = avg*avg
 # Compute auto-correlation
 corr = []
 vlen = len(value)
-print vlen
+#print vlen
 
 maxi = int(max_tau / tinc)
 
@@ -51,6 +51,7 @@ if (maxi > vlen):
     maxi = vlen
 
 for i in xrange(maxi):
+#    print i
     cov = 0.0
     for j in xrange(vlen-i):
        cov += value[j] * value[i+j]
