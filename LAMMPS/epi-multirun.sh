@@ -31,6 +31,7 @@ cmd=()
 log=()
 jobid=1
 
+phi=$(printf "%.2f" $phi)
 f=$f_start
 
 while (( $(bc <<< "$f <= $f_end") ))
@@ -48,7 +49,7 @@ do
 		dumpxyz="nodump"
 		dumpstate="nostate"
 	    fi
-
+	    
 	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${phi} ${nc} ${tcolour} ${tmax} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_phi_${phi}_nc_${nc}_t_${tmax}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
