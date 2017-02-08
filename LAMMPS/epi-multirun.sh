@@ -2,6 +2,8 @@
 
 L=150
 N=1000
+phi=0.1 # fraction of static atoms
+nc=1 # cluster size
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -12,7 +14,7 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-tmax=1000000
+tmax=10000
 teq=10000
 tcolour=10
 order="disorder"
@@ -47,8 +49,8 @@ do
 		dumpstate="nostate"
 	    fi
 
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${tcolour} ${tmax} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
-	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${tmax}_run_${runid}.log"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${phi} ${nc} ${tcolour} ${tmax} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
+	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_phi_${phi}_nc_${nc}_t_${tmax}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done
 	

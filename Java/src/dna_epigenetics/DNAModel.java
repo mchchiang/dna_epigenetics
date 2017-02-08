@@ -12,11 +12,13 @@ public class DNAModel {
 	
 	//simulation parameters
 	private int n; //number of nucleosomes
-	private int [] dna; //set states to be: A -> 0; U -> 1; M -> 2
+	//set states to be: A = 0; U = 1; M = 2; As = 3; Us = 4; Ms = 5
+	private int [] dna; 
 	private int sweeps;
 	private int seed;
 	private int time;
 	private double radius;
+	private final int NUMOFSTATE = 6;
 	
 	//observables
 	private int [] numInState;
@@ -55,7 +57,7 @@ public class DNAModel {
 	public void init(){
 		rand = new Random();
 		dna = new int [n];
-		numInState = new int [3];
+		numInState = new int [NUMOFSTATE];
 		listeners = new ArrayList<DataListener>();
 	}
 	
@@ -145,10 +147,10 @@ public class DNAModel {
 		int s1 = dna[n1];
 		int s2 = dna[n2];
 		
-		if (s1 != s2 && s2 != 1){
-			if (s2 == 2){
+		if (s1 < 3 && s1 != s2 && s2 != 1 && s2 != 4){
+			if (s2 == 2 || s2 == 5){
 				setState(n1, dna[n1]+1);
-			} else if (s2 == 0){
+			} else if (s2 == 0 || s2 == 3){
 				setState(n1, dna[n1]-1);
 			}
 		}

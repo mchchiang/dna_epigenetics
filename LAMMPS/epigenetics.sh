@@ -1,25 +1,27 @@
 #!/bin/bash
 
 # read in parameters
-box_size=$1      # simulation box size
-num_of_atoms=$2  # number of atoms
-ratio=$3         # feedback ratio in Sneppen model (i.e. F = alpha / (1 - alpha) )
-bond_energy=$4   # bond energy in pairwise potential
-cut_off=$5       # pairwise potential cut-off parameter
-tcolour=$6       # recolour time (in Brownian time units)
-tmax=$7          # maximum simulation time (in Brownian time units), must be multiple of tcolour 
-teq=$8           # total equlibration steps
-run=$9           # trial number
-order=${10}      # order or disorder
-simtype=${11}    # collapse, swollen, or hysteresis
-dumpxyz=${12}    # dump or nodump
-dumpstate=${13}  # nostate or state
-exepath=${14}    # execution path (../Java/build/classes/)
-nproc=${15}      # number of processes to run with
-outdir=${16}     # output directory relative to current directory
-print_freq=${17} # dump atoms' positions frequency (in Brownian time units)
+box_size=$1        # simulation box size
+num_of_atoms=$2    # number of atoms
+ratio=$3           # feedback ratio in Sneppen model (i.e. F = alpha / (1 - alpha) )
+bond_energy=$4     # bond energy in pairwise potential
+cut_off=$5         # pairwise potential cut-off parameter
+frac_static=$6     # fraction of bookmark/static atoms
+cluster_size=$7    # cluster size
+tcolour=$8         # recolour time (in Brownian time units)
+tmax=$9            # maximum simulation time (in Brownian time units), must be multiple of tcolour 
+teq=${10}          # total equlibration steps
+run=${11}          # trial number
+order=${12}        # order or disorder
+simtype=${13}      # collapse, swollen, or hysteresis
+dumpxyz=${14}      # dump or nodump
+dumpstate=${15}    # nostate or state
+exepath=${16}      # execution path (../Java/build/classes/)
+nproc=${17}        # number of processes to run with
+outdir=${18}       # output directory relative to current directory
+print_freq=${19}   # dump atoms' positions frequency (in Brownian time units)
 
-type_of_atoms=3  # types of atoms
+type_of_atoms=6  # types of atoms
 delta_t=0.01     # time step size in Brownian time units
 colour_step=$(bc <<< "$tcolour/$delta_t")
 max_iter=$(bc <<< "$tmax/$delta_t/$colour_step")
@@ -29,7 +31,7 @@ print_freq=$(bc <<< "$print_freq/$delta_t")  # actual print frequency in simulat
 seed=$(python GetRandom.py 100000)
 
 # generate the data/output file names
-name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_t_${tmax}_run_${run}"
+name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_phi_${frac_static}_nc_${cluster_size}_t_${tmax}_run_${run}"
 thermo_file="thermo_${name}.dat"
 xyz_file="vmd_${name}.xyz"
 init_file="init_${name}.in"
@@ -111,7 +113,8 @@ if [ $order = "order" ]; then
 else
     random_type="true"
 fi
-java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $init_file
+echo "java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $frac_static $cluster_size $init_file"
+java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $frac_static $cluster_size $init_file
 
 # clear any previous entries in the state and stats file
 if [ $state_file != "none" ]; then

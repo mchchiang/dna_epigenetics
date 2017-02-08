@@ -40,10 +40,13 @@ reset_timestep 0
 
 # Define groups
 
-group all type 1 2 3
+group all type 1 2 3 4 5 6
 group A type 1
 group U type 2
 group M type 3
+group As type 4
+group Us type 5
+group Ms type 6
 
 ###################################################################
 
@@ -151,13 +154,16 @@ read_data INFILE
 
 reset_timestep ${restarttime}
 
-group all type 1 2 3
+group all type 1 2 3 4 5 6
 group A type 1
 group U type 2
 group M type 3
+group As type 4
+group Us type 5
+group Ms type 6
 
 DUMPFLAGdump 3 all xyz PRINTFREQ ${posfile}
-DUMPFLAGdump_modify 3 element O N C append yes
+DUMPFLAGdump_modify 3 element O N C H F S append yes
 
 ###################################################################
 
@@ -175,6 +181,10 @@ pair_modify     shift yes
 pair_coeff	* * 1.0 1.0 1.12246152962189
 pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
 pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
+pair_coeff	4 4 BONDENERGY 1.0 CUTOFF
+pair_coeff	6 6 BONDENERGY 1.0 CUTOFF
+pair_coeff	1 4 BONDENERGY 1.0 CUTOFF
+pair_coeff	3 6 BONDENERGY 1.0 CUTOFF
 
 bond_style   fene
 

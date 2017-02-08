@@ -21,7 +21,8 @@ public class LAMMPSIO {
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 	
 	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
-			double lx, double ly, double lz, int seed, boolean randomType){
+			double lx, double ly, double lz, int seed, boolean randomType,
+			double staticFraction, int clusterSize){
 		this.numOfAtoms = numOfAtoms;
 		this.typesOfAtoms = typesOfAtoms;
 		this.lx = lx;
@@ -63,12 +64,45 @@ public class LAMMPSIO {
 		//generate atom's type
 		if (randomType){
 			for (int i = 0; i < numOfAtoms; i++){
-				 atomType[i] = rand.nextInt(typesOfAtoms)+1;
+				 atomType[i] = rand.nextInt(3)+1;//3 normal atom types
 			}
 		} else {
 			int type = rand.nextInt(2) * 2 + 1;
 			for (int i = 0; i < numOfAtoms; i++){
 				 atomType[i] = type;
+			}
+		}
+		
+		int numOfStatic = (int) (staticFraction * numOfAtoms);
+		if (numOfStatic > 0){
+			generateStaticAtom(numOfStatic, clusterSize);		
+		}
+	}
+	
+	public void generateStaticAtom(int numOfStatic, int clusterSize){
+		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
+		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
+		int remain = numOfStatic;
+		boolean ok;
+		Random rand = new Random();
+		int site, type;
+		while (remain > 0){
+			if (clusterSize > remain) clusterSize = remain;
+			ok = false;
+			do {
+				site = rand.nextInt(numOfAtoms);
+				ok = true;
+				for (int i = site; i < site+clusterSize; i++){
+					if (atomType[i] > 3){
+						ok = false;
+						break;
+					}
+				}
+			} while (!ok);
+			type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
+			for (int i = site; i < site+clusterSize; i++){
+				atomType[i] = type;
+				remain--;
 			}
 		}
 	}
@@ -344,10 +378,13 @@ public class LAMMPSIO {
 		double lz = Double.parseDouble(args[4]);
 		int seed = Integer.parseInt(args[5]);
 		boolean randomType = Boolean.parseBoolean(args[6]);
-		String file = args[7];
+		double fracStatic = Double.parseDouble(args[7]);
+		int clusterSize = Integer.parseInt(args[8]);
+		String file = args[9];
 		LAMMPSIO io = new LAMMPSIO();
 		io.generateAtomData(numOfAtoms, typesOfAtoms, 
-				lx, ly, lz, seed, randomType);
+				lx, ly, lz, seed, randomType,
+				fracStatic, clusterSize);
 		io.writeAtomData(file);
 	}
 }
