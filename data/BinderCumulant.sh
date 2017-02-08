@@ -5,7 +5,7 @@
 #
 
 L=100
-N=100
+N=400
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -13,9 +13,9 @@ e_start=$4
 e_end=$5
 e_inc=$6
 rc=2.5
-max_iter=12000
-tstart=3000000
-freq=200000
+max_iter=1000000
+tstart=50000
+freq=20000
 outdir=$7
 
 outfile="${outdir}/bincum-mag_L_${L}_N_${N}_rc_2.5_t_${max_iter}.dat" 
