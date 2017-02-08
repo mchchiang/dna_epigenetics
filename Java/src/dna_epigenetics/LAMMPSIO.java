@@ -90,7 +90,10 @@ public class LAMMPSIO {
 			if (clusterSize > remain) clusterSize = remain;
 			ok = false;
 			do {
-				site = rand.nextInt(numOfAtoms);
+				site = rand.nextInt(numOfAtoms);	
+				if (site+clusterSize >= numOfAtoms){
+					continue;
+				}
 				ok = true;
 				for (int i = site; i < site+clusterSize; i++){
 					if (atomType[i] > 3){
