@@ -237,12 +237,13 @@ public class DNAModel {
 		String fileToLAMMPS = args[9];
 		String stateFileName = args[10];
 		String statsFileName = args[11];
+		int printInt = Integer.parseInt(args[12]);
 		
 		DataWriter stateWriter, statsWriter;
 		if (stateFileName.equalsIgnoreCase("none")){
 			stateWriter = new NullWriter();
 		} else {
-			stateWriter = new StateWriter(actualTime);
+			stateWriter = new StateWriter(actualTime, printInt);
 		}
 		
 		if (statsFileName.equalsIgnoreCase("none")){

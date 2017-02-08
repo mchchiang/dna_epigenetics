@@ -3,7 +3,7 @@
 L=150
 N=1000
 phi=0.1 # fraction of static atoms
-nc=1 # cluster size
+nc=5 # cluster size
 f_start=$1
 f_end=$2
 f_inc=$3

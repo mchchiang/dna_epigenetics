@@ -125,6 +125,7 @@ write_data OUTFILE nocoeff
 
 variable restarttime equal 0
 variable btime equal (step*DELTAT)
+variable printtime equal (PRINTFREQ*DELTAT)
 variable seed equal SEED
 variable sweeps equal 1
 DUMPFLAGvariable posfile string "XYZFILE"
@@ -139,7 +140,7 @@ variable loopindex loop MAXITER
 
 label loop
 
-shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${btime} false true OUTFILE INFILE STATEFILE STATSFILE
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${btime} false true OUTFILE INFILE STATEFILE STATSFILE ${printtime}
 
 clear
 
