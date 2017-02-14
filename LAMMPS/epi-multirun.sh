@@ -17,8 +17,9 @@ max_job=$9
 tmax=10000
 teq=10000
 tcolour=10
-order="disorder"
-collapse="swollen"
+atom_type="0"
+static_type="cluster"
+sim_type="swollen"
 dumpxyz="dump"
 dumpstate="state"
 exepath="./"
@@ -50,7 +51,7 @@ do
 		dumpstate="nostate"
 	    fi
 	    
-	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${phi} ${nc} ${tcolour} ${tmax} ${teq} ${runid} ${order} ${collapse} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
+	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${phi} ${nc} ${tcolour} ${tmax} ${teq} ${runid} ${atom_type} ${static_type} ${sim_type} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
 	    log[$jobid]="nohup_L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_phi_${phi}_nc_${nc}_t_${tmax}_run_${runid}.log"
 	    jobid=$(bc <<< "$jobid + 1")
 	done

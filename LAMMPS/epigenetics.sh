@@ -12,14 +12,15 @@ tcolour=$8         # recolour time (in Brownian time units)
 tmax=$9            # maximum simulation time (in Brownian time units), must be multiple of tcolour 
 teq=${10}          # total equlibration steps
 run=${11}          # trial number
-order=${12}        # order or disorder
-simtype=${13}      # collapse, swollen, or hysteresis
-dumpxyz=${14}      # dump or nodump
-dumpstate=${15}    # nostate or state
-exepath=${16}      # execution path (../Java/build/classes/)
-nproc=${17}        # number of processes to run with
-outdir=${18}       # output directory relative to current directory
-print_freq=${19}   # dump atoms' positions frequency (in Brownian time units)
+atom_type=${12}    # 0 = random, 1 = active, 2 = unmark, 3 = inactive, 4 = random uniform
+static_type=${13}  # configuration for static atoms (random, cluster, mixed)
+simtype=${14}      # collapse, swollen, or hysteresis
+dumpxyz=${15}      # dump or nodump
+dumpstate=${16}    # nostate or state
+exepath=${17}      # execution path (../Java/build/classes/)
+nproc=${18}        # number of processes to run with
+outdir=${19}       # output directory relative to current directory
+print_freq=${20}   # dump atoms' positions frequency (in Brownian time units)
 
 type_of_atoms=6  # types of atoms
 delta_t=0.01     # time step size in Brownian time units
@@ -107,14 +108,14 @@ cd ${exepath}
 
 # initialise dna strand (ordered/disordered)
 seed2=$(bc <<< "$seed+34987")
-random_type="true"
-if [ $order = "order" ]; then
-    random_type="false"
-else
-    random_type="true"
-fi
-echo "java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $frac_static $cluster_size $init_file"
-java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $random_type $frac_static $cluster_size $init_file
+#random_type="true"
+#if [ $order = "order" ]; then
+#    random_type="false"
+#else
+#    random_type="true"
+#fi
+
+java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $atom_type $static_type $frac_static $cluster_size $init_file
 
 # clear any previous entries in the state and stats file
 if [ $state_file != "none" ]; then

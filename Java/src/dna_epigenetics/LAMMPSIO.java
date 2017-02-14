@@ -21,8 +21,8 @@ public class LAMMPSIO {
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 	
 	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
-			double lx, double ly, double lz, int seed, boolean randomType,
-			double staticFraction, int clusterSize){
+			double lx, double ly, double lz, int seed, int type,
+			String staticType, double staticFraction, int clusterSize){
 		this.numOfAtoms = numOfAtoms;
 		this.typesOfAtoms = typesOfAtoms;
 		this.lx = lx;
@@ -61,25 +61,50 @@ public class LAMMPSIO {
 			atomPosition[i][2] = z;
 		}
 		
-		//generate atom's type
-		if (randomType){
-			for (int i = 0; i < numOfAtoms; i++){
-				 atomType[i] = rand.nextInt(3)+1;//3 normal atom types
-			}
-		} else {
-			int type = rand.nextInt(2) * 2 + 1;
-			for (int i = 0; i < numOfAtoms; i++){
-				 atomType[i] = type;
+		generateAtomType(type, staticType, staticFraction, clusterSize);	
+	}
+	
+	public void generateAtomType(
+			int type, String staticType, 
+			double staticFraction, int clusterSize){
+		
+		//generate bookmarks
+		if (staticFraction > 0){
+			int numOfStatic = (int) (staticFraction * numOfAtoms);
+			if (staticType.equalsIgnoreCase("random")){
+				generateRandomBookmarks(numOfStatic, 1);
+			} else if (staticType.equalsIgnoreCase("cluster")){
+				generateClusterBookmarks(numOfStatic, clusterSize);
+			} else if (staticType.equalsIgnoreCase("mixed")){
+				generateMixedBookmarks(numOfStatic);
 			}
 		}
 		
-		int numOfStatic = (int) (staticFraction * numOfAtoms);
-		if (numOfStatic > 0){
-			generateStaticAtom(numOfStatic, clusterSize);		
+		//generate type for other atoms
+		Random rand = new Random();
+		
+		//generate random types for the remaining atoms
+		if (type == 0){
+			for (int i = 0; i < numOfAtoms; i++){
+				if (atomType[i] < 4){
+					atomType[i] = rand.nextInt(3)+1;//3 normal atom types
+				} 
+			}
+			
+		//generate a uniform type for the remaining atoms
+		} else if (type > 0 && type < 5){
+			if (type == 4){//randomly
+				type = rand.nextInt(3)+1;
+			}
+			for (int i = 0; i < numOfAtoms; i++){
+				if (atomType[i] < 4){
+					atomType[i] = type;
+				} 	
+			}
 		}
 	}
 	
-	public void generateStaticAtom(int numOfStatic, int clusterSize){
+	public void generateRandomBookmarks(int numOfStatic, int clusterSize){
 		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
 		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
 		int remain = numOfStatic;
@@ -108,6 +133,26 @@ public class LAMMPSIO {
 				remain--;
 			}
 		}
+	}
+	
+	public void generateClusterBookmarks(int numOfStatic, int clusterSize){
+		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
+		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
+		int spacing = numOfAtoms / numOfStatic;
+		Random rand = new Random();
+		int type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
+		int toggle = 5 - type;
+		for (int i = 0; i < numOfStatic; i++){
+			atomType[i*spacing] = type;
+			if ((i+1) % clusterSize == 0){
+				type += (toggle*2);
+				toggle *= -1;
+			}
+		}
+	}
+	
+	public void generateMixedBookmarks(int numOfStatic){
+		generateClusterBookmarks(numOfStatic, 1);
 	}
 
 	public void readAtomData(String filename) throws IOException {	
@@ -380,14 +425,14 @@ public class LAMMPSIO {
 		double ly = Double.parseDouble(args[3]);
 		double lz = Double.parseDouble(args[4]);
 		int seed = Integer.parseInt(args[5]);
-		boolean randomType = Boolean.parseBoolean(args[6]);
-		double fracStatic = Double.parseDouble(args[7]);
-		int clusterSize = Integer.parseInt(args[8]);
-		String file = args[9];
+		int type = Integer.parseInt(args[6]);
+		String staticType = args[7];
+		double fracStatic = Double.parseDouble(args[8]);
+		int clusterSize = Integer.parseInt(args[9]);
+		String file = args[10];
 		LAMMPSIO io = new LAMMPSIO();
 		io.generateAtomData(numOfAtoms, typesOfAtoms, 
-				lx, ly, lz, seed, randomType,
-				fracStatic, clusterSize);
+				lx, ly, lz, seed, type, staticType,	fracStatic, clusterSize);
 		io.writeAtomData(file);
 	}
 }
