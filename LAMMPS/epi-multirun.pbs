@@ -4,7 +4,7 @@
 #PBS -q cm.7.day
 
 export PATH=$PATH:~/Documents/Courses/MPhys_Project/lammps-30Jul16/src/
-cd /Disk/ball_staging/s1309877/dna_epigenetics/LAMMPS/
+cd /Disk/ball_staging/s1309877/dna_epigenetics/cluster/
 
 echo 'Started at' `date`
 echo '-----------------------------------------------------------------------------'
