@@ -23,7 +23,8 @@ max_time=1000000
 
 f=$f_start
 
-list="stats state thermo vmd"
+#list="stats state thermo vmd"
+list="stats thermo"
 
 while (( $(bc <<< "$f <= $f_end") ))
 do
@@ -51,7 +52,7 @@ do
 		    newfile="${outdir}/${suffix}_${name}.dat"
 		    tmpfile="${outdir}/${suffix}_${name}.tmp"
 		    mv $file $newfile
-		    awk '$1!=""{$1=$1*0.01-20000; print}$1==""{print $0}' $newfile > $tmpfile
+		    awk '$1!=""{$1=$1*0.01-10000; print}$1==""{print $0}' $newfile > $tmpfile
 		    mv $tmpfile $newfile
 		fi
 	    done

@@ -16,7 +16,8 @@ rc=2.5
 max_iter=100000
 tstart=3000000
 freq=$7
-outdir=$8
+indir=$8
+outdir=$9
 binsize=0.1
 min=1
 max=20
@@ -36,7 +37,7 @@ do
 	echo "Calculating distribution for e = ${e} f = ${f}"
 	
 	# Distribution of gyration radius
-	python GetDistribution.py 0 10 $min $max $binsize $tstart $freq "${outdir}/prob_gyr_${name}.dat" "${outdir}/thermo_${name}_run_"*.dat
+	python GetDistribution.py 0 10 $min $max $binsize $tstart $freq "${outdir}/prob_gyr_${name}.dat" "${indir}/thermo_${name}_run_"*.dat
 	
        	e=$(bc <<< "$e + $e_inc")
 

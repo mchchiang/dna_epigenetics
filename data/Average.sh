@@ -16,7 +16,8 @@ rc=2.5
 #max_iter=100000 #old format
 max_iter=1000000 #new format
 teq=1000000
-outdir=${7}
+indir=$7
+outdir=$8
 
 f=$f_start
 
@@ -31,10 +32,10 @@ do
 	
 	echo "Doing average for e = ${e} f = ${f}"
 	# Average gyration radius 
-	python GetAverage.py 0 10 -1 $teq "${outdir}/gyr_${name}_run_avg.dat" "${outdir}/thermo_${name}_run_"*.dat 
+	python GetAverage.py 0 10 -1 $teq "${outdir}/gyr_${name}_run_avg.dat" "${indir}/thermo_${name}_run_"*.dat 
 
 	# Average G factor (magnetisation)
-	python GetAverage.py 0 2 -1 0 "${outdir}/mag_${name}_run_avg.dat" "${outdir}/stats_${name}_run_"*.dat 
+	python GetAverage.py 0 2 -1 0 "${outdir}/mag_${name}_run_avg.dat" "${indir}/stats_${name}_run_"*.dat 
 	
 	e=$(bc <<< "$e + $e_inc")
     done
