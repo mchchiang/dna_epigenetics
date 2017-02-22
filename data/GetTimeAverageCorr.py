@@ -28,12 +28,20 @@ with open(data_file, "r") as f:
     for line in f:
         if (not line.startswith("#")):
             data = line.strip().split()
-            if (data == [] or int(data[time_col]) < tstart): #ignore any lines start with \n
+            if (data == []): #ignore any lines start with \n
                 continue
-            n += 1
-            value = abs(float(data[value_col]))
-            avg += value
-            avgSq += value*value
+            
+            t = int(data[time_col])
+
+            if (t < tstart or ((t-tstart) % tinc) != 0):
+                continue
+
+            else:
+                n += 1
+                value = abs(float(data[value_col]))
+                avg += value
+                avgSq += value*value
+
 
 n = float(n)
 avg /= n

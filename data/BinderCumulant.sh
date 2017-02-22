@@ -5,7 +5,7 @@
 #
 
 L=100
-N=100
+N=400
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -13,12 +13,15 @@ e_start=$4
 e_end=$5
 e_inc=$6
 rc=2.5
-max_iter=12000
-tstart=3000000
-freq=200000
-outdir=$7
+max_iter=1000000
+tstart=10000
+freq=20000
+indir=$7
+outdir=$8
 
-outfile="${outdir}/bincum-mag_L_${L}_N_${N}_rc_2.5_t_${max_iter}.dat" 
+outfile="${outdir}/bincum-ene_L_${L}_N_${N}_rc_2.5_t_${max_iter}.dat" 
+#outfile="${outdir}/bincum-gyr_L_${L}_N_${N}_rc_2.5_t_${max_iter}.dat" 
+#outfile="${outdir}/bincum-mag_L_${L}_N_${N}_rc_2.5_t_${max_iter}.dat" 
 > $outfile
 
 f=$f_start
@@ -35,9 +38,13 @@ do
 	echo "Calculating binder cumulant for e = ${e} f = ${f}"
 	
 	# Distribution of gyration radius
-	python GetBinderCumulant.py 0 2 $tstart $freq "${outdir}/bincum-mag_${name}.dat" "${outdir}/stats_${name}_run_"*.dat
+#	python GetBinderCumulant.py 0 1 $tstart $freq "${outdir}/bincum-gyr_${name}.dat" "${indir}/gyr-mag_${name}_run_"*.dat
+	python GetBinderCumulant.py 0 4 $tstart $freq "${outdir}/bincum-ene_${name}.dat" "${indir}/thermo_${name}_run_"*.dat
+#	python GetBinderCumulant.py 0 4 $tstart $freq "${outdir}/bincum-mag_${name}.dat" "${indir}/gyr-mag_${name}_run_"*.dat
 	
-	bincum=$(cat "${outdir}/bincum-mag_${name}.dat")
+	bincum=$(cat "${outdir}/bincum-ene_${name}.dat")
+#	bincum=$(cat "${outdir}/bincum-gyr_${name}.dat")
+#	bincum=$(cat "${outdir}/bincum-mag_${name}.dat")
 	echo "${f} ${e} ${rc} ${bincum}" >> $outfile
 
        	e=$(bc <<< "$e + $e_inc")

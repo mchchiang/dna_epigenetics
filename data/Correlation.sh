@@ -24,7 +24,8 @@ start_time=50000
 max_tau=100000
 #tinc=1000
 tinc=10
-outdir=$9
+indir=$9
+outdir=${10}
 
 f=$f_start
 
@@ -41,7 +42,7 @@ do
 	    echo "Calculating correlation for e = ${e} f = ${f} run = ${run}"
 	    
 	    # Correlation for gyration radius
-	    python GetCorrelation.py $start_time $max_tau $tinc 0 10 "${outdir}/thermo_${name}_run_${run}.dat" "${outdir}/corr_thermo_${name}_run_${run}.dat"
+	    python GetCorrelation.py $start_time $max_tau $tinc 0 10 "${indir}/thermo_${name}_run_${run}.dat" "${outdir}/corr_thermo_${name}_run_${run}.dat"
 	
 	done
 	

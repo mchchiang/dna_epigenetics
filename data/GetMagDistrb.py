@@ -32,7 +32,7 @@ with open(in_file, "r") as f:
     for line in f:
         data = line.strip().split()
         if (count > 0 and count <= n):
-            site = int(data[0])
+            site = count-1;
             state = int(data[1])
 
             avg[site] += state
@@ -65,7 +65,7 @@ for i in xrange(n):
     var[i] = sample / (sample-1) * (var[i] - avg[i]*avg[i])
     sigma = math.sqrt(var[i])
 
-    output = "%d %.5f %.5f" % (i, avg[i], sigma) 
+    output = "%d %.5f %.5f" % (i+1, avg[i], sigma) 
 
     for j in xrange(NUM_OF_STATE):
         output += " %.5f" % (prob[j][i])

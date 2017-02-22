@@ -41,6 +41,7 @@ files = [open(i, "r") for i in args]
 count = 0
 
 for f in files:
+    print f
     for line in f:
         if (not line.startswith("#")):
             data = line.strip().split()

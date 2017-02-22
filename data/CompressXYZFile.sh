@@ -17,7 +17,8 @@ run_end=$8
 rc=2.5
 max_iter=1000
 teq=1000000
-outdir=$9
+indir=$9
+outdir=${10}
 
 f=$f_start
 
@@ -30,7 +31,7 @@ do
 	    e=$(printf "%.2f" $e)
 	    f=$(printf "%.2f" $f)
 	    name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}"
-	    infile="${outdir}/vmd_${name}_run_${run}.xyz"
+	    infile="${indir}/vmd_${name}_run_${run}.xyz"
 	    outfile="${outdir}/vmd_${name}_run_${run}_comp.xyz"
 
 	    echo "Compressing xyz file for e = ${e} f = ${f} run = ${run}"
