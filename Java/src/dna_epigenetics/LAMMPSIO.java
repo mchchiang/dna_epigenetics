@@ -77,7 +77,7 @@ public class LAMMPSIO {
 				generateClusterBookmarks(numOfStatic, clusterSize);
 			} else if (staticType.equalsIgnoreCase("mixed")){
 				generateMixedBookmarks(numOfStatic);
-			}
+			} 
 		}
 		
 		//generate type for other atoms
@@ -156,6 +156,7 @@ public class LAMMPSIO {
 	}
 
 	public void readAtomData(String filename) throws IOException {	
+		System.out.println("Start reading atom's data");
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		header = reader.readLine();
 		
@@ -307,9 +308,11 @@ public class LAMMPSIO {
 
 		readData = true;
 		reader.close();
+		System.out.println("Finished reading atom's data");
 	}
 
 	public void writeAtomData(String filename) throws IOException{
+		System.out.println("Start wrting atom's data");
 		PrintWriter writer = new PrintWriter(
 				new BufferedWriter(new FileWriter(filename)));
 		//write header section of LAMMPS input files
@@ -363,6 +366,7 @@ public class LAMMPSIO {
 					i, 1, i, i+1, i+2);
 		}
 		writer.close();
+		System.out.println("Finished wrting atom's data");
 	}
 
 	public void computePairwiseDistance(){

@@ -110,6 +110,7 @@ public class DNAModel {
 	
 	public void run(){
 		int i;
+		System.out.println("Start running model code");
 		for (time = 0; time < sweeps; time++){
 			for (i = 0; i < n; i++){
 				nextStep();
@@ -117,6 +118,7 @@ public class DNAModel {
 			//measurements
 			notifyListener();
 		}
+		System.out.println("Finish running model code");
 	}
 	
 	public void nextStep(){
@@ -223,7 +225,7 @@ public class DNAModel {
 		return (m-a)/(m+a);
 	}
 	
-	public static void main (String [] args) throws IOException{
+	public static void main (String [] args) {
 		int n = Integer.parseInt(args[0]);
 		double ratio = Double.parseDouble(args[1]);
 		double radius = Double.parseDouble(args[2]);
@@ -259,7 +261,12 @@ public class DNAModel {
 		//init model from lammps
 		if (useLAMMPS){
 			LAMMPSIO lammps = new LAMMPSIO();
-			lammps.readAtomData(fileFromLAMMPS);
+			try {
+				lammps.readAtomData(fileFromLAMMPS);	
+			} catch (IOException e){
+				System.out.println("Problem reading input file from lammps!");
+				e.printStackTrace();
+			}
 			lammps.computePairwiseDistance();			
 			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
 			model.addListener(stateWriter);
@@ -274,7 +281,12 @@ public class DNAModel {
 			for (int i = 0; i < n; i++){
 				lammps.setAtomType(i, model.getState(i)+1);
 			}
-			lammps.writeAtomData(fileToLAMMPS);
+			try {
+				lammps.writeAtomData(fileToLAMMPS);
+			} catch (IOException e){
+				System.out.println("Problem writing output file to lammps!");
+				e.printStackTrace();
+			}
 		} else {
 			model = new DNAModel(n, ratio, radius, sweeps, seed);
 			model.addListener(stateWriter);
