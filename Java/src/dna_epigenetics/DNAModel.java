@@ -240,6 +240,8 @@ public class DNAModel {
 		String statsFileName = args[11];
 		int printInt = Integer.parseInt(args[12]);
 		
+		System.out.println("t = " + actualTime);
+		
 		DataWriter stateWriter, statsWriter;
 		if (stateFileName.equalsIgnoreCase("none")){
 			stateWriter = new NullWriter();
@@ -257,6 +259,7 @@ public class DNAModel {
 		statsWriter.openWriter(statsFileName, true);
 		
 		DNAModel model;
+		
 		//init model from lammps
 		if (useLAMMPS){
 			LAMMPSIO lammps = new LAMMPSIO();
