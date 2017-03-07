@@ -109,7 +109,7 @@ public class DNAModel {
 	
 	public void run(){
 		int i;
-		System.out.println("Start running model code");
+		System.out.println("Started running model");
 		for (time = 0; time < sweeps; time++){
 			for (i = 0; i < n; i++){
 				nextStep();
@@ -117,7 +117,7 @@ public class DNAModel {
 			//measurements
 			notifyListener();
 		}
-		System.out.println("Finish running model code");
+		System.out.println("Finished running model");
 	}
 	
 	public void nextStep(){
