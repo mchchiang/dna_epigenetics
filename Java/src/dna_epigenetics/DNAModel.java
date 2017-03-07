@@ -263,7 +263,7 @@ public class DNAModel {
 		if (posFileName.equalsIgnoreCase("none")){
 			posWriter = new NullWriter();
 		} else {
-			posWriter = new PositionWriter();
+			posWriter = new PositionWriter(actualTime, printInt);
 		}
 		
 		stateWriter.openWriter(stateFileName, true);

@@ -38,7 +38,7 @@ public class PositionWriter extends DataWriter {
 				yc = lammps.getAtomBoundaryCount(i, 1);
 				zc = lammps.getAtomBoundaryCount(i, 2);
 				type = model.getState(i);		
-				writer.printf("%s %.5f %.5f %.5f %d %d %d %d\n", 
+				writer.printf("%s %.10f %.10f %.10f %d %d %d %d\n", 
 						getTypeSymbol(type), x, y, z, xc, yc, zc, type);
 			}
 		}
