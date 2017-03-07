@@ -218,6 +218,10 @@ public class DNAModel {
 		return numInState[2];
 	}
 	
+	public LAMMPSIO getLAMMPS(){
+		return lammps;
+	}
+	
 	public double getG(){
 		double m = numInState[2];
 		double a = numInState[0];
@@ -238,11 +242,12 @@ public class DNAModel {
 		String fileToLAMMPS = args[9];
 		String stateFileName = args[10];
 		String statsFileName = args[11];
-		int printInt = Integer.parseInt(args[12]);
+		String posFileName = args[12];
+		int printInt = Integer.parseInt(args[13]);
 		
 		System.out.println("t = " + actualTime);
 		
-		DataWriter stateWriter, statsWriter;
+		DataWriter stateWriter, statsWriter, posWriter;
 		if (stateFileName.equalsIgnoreCase("none")){
 			stateWriter = new NullWriter();
 		} else {
@@ -255,8 +260,15 @@ public class DNAModel {
 			statsWriter = new StatsWriter(actualTime);
 		}
 		
+		if (posFileName.equalsIgnoreCase("none")){
+			posWriter = new NullWriter();
+		} else {
+			posWriter = new PositionWriter();
+		}
+		
 		stateWriter.openWriter(stateFileName, true);
 		statsWriter.openWriter(statsFileName, true);
+		posWriter.openWriter(posFileName, true);
 		
 		DNAModel model;
 		
@@ -272,7 +284,8 @@ public class DNAModel {
 			lammps.computePairwiseDistance();			
 			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
 			model.addListener(stateWriter);
-			model.addListener(statsWriter);		
+			model.addListener(statsWriter);	
+			model.addListener(posWriter);
 			if (randomStates){
 				model.initState();
 			} else {
@@ -299,5 +312,6 @@ public class DNAModel {
 		
 		stateWriter.closeWriter();
 		statsWriter.closeWriter();
+		posWriter.closeWriter();
 	}
 }
