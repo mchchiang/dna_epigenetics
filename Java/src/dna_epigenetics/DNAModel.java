@@ -1,7 +1,6 @@
 package dna_epigenetics;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Random;
 import java.util.ArrayList;
 

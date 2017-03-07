@@ -77,7 +77,13 @@ public class LAMMPSIO {
 				generateClusterBookmarks(numOfStatic, clusterSize);
 			} else if (staticType.equalsIgnoreCase("mixed")){
 				generateMixedBookmarks(numOfStatic);
-			} 
+			} else if (staticType.equalsIgnoreCase("single_a")){
+				generateSingleBookmark(numOfAtoms/2-1, 4);
+			} else if (staticType.equalsIgnoreCase("single_u")){
+				generateSingleBookmark(numOfAtoms/2-1, 5);
+			} else if (staticType.equalsIgnoreCase("single_m")){
+				generateSingleBookmark(numOfAtoms/2-1, 6);
+			}
 		}
 		
 		//generate type for other atoms
@@ -153,6 +159,12 @@ public class LAMMPSIO {
 	
 	public void generateMixedBookmarks(int numOfStatic){
 		generateClusterBookmarks(numOfStatic, 1);
+	}
+	
+	public void generateSingleBookmark(int pos, int type){
+		if (pos < numOfAtoms){
+			atomType[pos] = type;
+		}
 	}
 
 	public void readAtomData(String filename) throws IOException {	
