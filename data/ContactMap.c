@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
   char * outfile = argv[6];
   
   int startLine = tstart * (n+2);
-  int endLine = tend * (n+2);
+  int endLine = (tend+1) * (n+2);
   int lineNum = 0;
   int count = 0;
   int sample = 0;
@@ -98,7 +98,9 @@ int main(int argc, char * argv[]){
 	      if (mag[i] == 0 && mag[j] == 0){
 		contact[i][j] += 1;
 	      } else if (mag[i] == 2 && mag[j] == 2){
-		contact[i][j] -= 1;
+		contact[i][j] += 3;
+	      } else {
+		contact[i][j] += 2;
 	      }
 	      //contact[i][j] += 1;
 	    }
