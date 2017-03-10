@@ -24,7 +24,7 @@ max_time=1000000
 f=$f_start
 
 #list="stats state thermo vmd"
-list="stats thermo"
+list="stats thermo vmd"
 
 while (( $(bc <<< "$f <= $f_end") ))
 do

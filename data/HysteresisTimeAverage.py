@@ -29,9 +29,9 @@ n = 0
 tconst = tstart
 value = 0
 count = 0
-estart = 0.45
-eend = 0.85
-einc = 0.001
+estart = 0.80
+eend = 0.20
+einc = -0.001
 e = estart
 esign = 1.0
 
@@ -50,7 +50,7 @@ with open(data_file, "r") as f:
             dt = t - tconst
            
             if (dt % tsample == 0):
-                value = float(data[value_col])
+                value = abs(float(data[value_col]))
                 avg += value
                 avgSq += value*value
                 n += 1
