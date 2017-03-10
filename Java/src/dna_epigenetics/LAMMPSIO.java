@@ -16,10 +16,10 @@ public class LAMMPSIO {
 	private boolean readData = false;
 	private boolean computedPairwiseDistance = false;
 	private final double pi = Math.PI;
-	
+
 	private String header = 
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
-	
+
 	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
 			double lx, double ly, double lz, int seed, int type,
 			String staticType, double staticFraction, int clusterSize){
@@ -28,21 +28,21 @@ public class LAMMPSIO {
 		this.lx = lx;
 		this.ly = ly;
 		this.lz = lz;
-		
+
 		Random rand = new Random();
-		
+
 		atomPosition = new double [numOfAtoms][dimension];
 		atomVelocity = new double [numOfAtoms][dimension];
 		atomBoundaryCount = new int [numOfAtoms][dimension];
 		atomType = new int [numOfAtoms];
-		
+
 		//set the first atom's position to be at the origin
 		for (int i = 0; i < dimension; i++){
 			atomPosition[0][i] = 0.0;
 		}
-		
+
 		double x, y, z, r, costheta, sintheta, phi;
-		
+
 		for (int i = 1; i < numOfAtoms; i++){
 			do {
 				r = rand.nextDouble();
@@ -54,20 +54,20 @@ public class LAMMPSIO {
 				y = atomPosition[i-1][1] + sintheta * Math.sin(phi);
 				z = atomPosition[i-1][2] + costheta;
 			} while (Math.abs(x) > lx/2.0 ||
-					 Math.abs(y) > ly/2.0 || 
-					 Math.abs(z) > lz/2.0);
+					Math.abs(y) > ly/2.0 || 
+					Math.abs(z) > lz/2.0);
 			atomPosition[i][0] = x;
 			atomPosition[i][1] = y;
 			atomPosition[i][2] = z;
 		}
-		
+
 		generateAtomType(type, staticType, staticFraction, clusterSize);	
 	}
-	
+
 	public void generateAtomType(
 			int type, String staticType, 
 			double staticFraction, int clusterSize){
-		
+
 		//generate bookmarks
 		if (staticFraction > 0){
 			int numOfStatic = (int) (staticFraction * numOfAtoms);
@@ -77,6 +77,10 @@ public class LAMMPSIO {
 				generateClusterBookmarks(numOfStatic, clusterSize);
 			} else if (staticType.equalsIgnoreCase("mixed")){
 				generateMixedBookmarks(numOfStatic);
+			} else if (staticType.equalsIgnoreCase("domain_a")){
+				generateFixedDomains(numOfStatic, 10, 4);
+			} else if (staticType.equalsIgnoreCase("domain_m")){
+				generateFixedDomains(numOfStatic, 10, 6);
 			} else if (staticType.equalsIgnoreCase("single_a")){
 				generateSingleBookmark(numOfAtoms/2-1, 4);
 			} else if (staticType.equalsIgnoreCase("single_u")){
@@ -85,10 +89,10 @@ public class LAMMPSIO {
 				generateSingleBookmark(numOfAtoms/2-1, 6);
 			}
 		}
-		
+
 		//generate type for other atoms
 		Random rand = new Random();
-		
+
 		//generate random types for the remaining atoms
 		if (type == 0){
 			for (int i = 0; i < numOfAtoms; i++){
@@ -96,8 +100,8 @@ public class LAMMPSIO {
 					atomType[i] = rand.nextInt(3)+1;//3 normal atom types
 				} 
 			}
-			
-		//generate a uniform type for the remaining atoms
+
+			//generate a uniform type for the remaining atoms
 		} else if (type > 0 && type < 5){
 			if (type == 4){//randomly
 				type = rand.nextInt(3)+1;
@@ -109,7 +113,7 @@ public class LAMMPSIO {
 			}
 		}
 	}
-	
+
 	public void generateRandomBookmarks(int numOfStatic, int clusterSize){
 		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
 		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
@@ -140,27 +144,57 @@ public class LAMMPSIO {
 			}
 		}
 	}
-	
+
 	public void generateClusterBookmarks(int numOfStatic, int clusterSize){
+		Random rand = new Random();
+		int type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
+		generateClusterBookmarks(numOfStatic, clusterSize, type);
+	}
+
+	public void generateClusterBookmarks(int numOfStatic, int clusterSize, int type){
 		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
 		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
 		int spacing = numOfAtoms / numOfStatic;
-		Random rand = new Random();
-		int type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
+		int shift = spacing/2;
 		int toggle = 5 - type;
 		for (int i = 0; i < numOfStatic; i++){
-			atomType[i*spacing] = type;
+			atomType[i*spacing+shift] = type;
 			if ((i+1) % clusterSize == 0){
 				type += (toggle*2);
 				toggle *= -1;
 			}
 		}
 	}
-	
+
+	public void generateFixedDomains(int numOfStatic, int numOfDomains, int type){
+		int domainSize = numOfAtoms / numOfDomains;
+		int bookmarksPerDomain = numOfStatic/numOfDomains;
+		int spacing = domainSize / bookmarksPerDomain;
+		boolean divisible = (domainSize % bookmarksPerDomain == 0);
+		int shift = spacing / 2;
+		int typeToggle = 5 - type;
+		int site;
+		int spaceToggle = 1;
+		for (int i = 0; i < numOfDomains; i++){
+			site = i * domainSize + shift;
+			for (int j = 0; j < bookmarksPerDomain; j++){
+				atomType[site] = type;
+				if (!divisible){
+					spacing += spaceToggle;
+					spaceToggle *= -1;	
+				}
+				site += spacing;
+			}
+			type += (typeToggle*2);
+			typeToggle *= -1;
+		}
+
+	}
+
 	public void generateMixedBookmarks(int numOfStatic){
 		generateClusterBookmarks(numOfStatic, 1);
 	}
-	
+
 	public void generateSingleBookmark(int pos, int type){
 		if (pos < numOfAtoms){
 			atomType[pos] = type;
@@ -171,7 +205,7 @@ public class LAMMPSIO {
 		System.out.println("Started reading");
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		header = reader.readLine();
-		
+
 		String line;
 		String [] args;
 
@@ -240,7 +274,7 @@ public class LAMMPSIO {
 
 		boolean readAtomPosition = false;
 		boolean readAtomVelocity = false;
-		
+
 		while (reader.ready() && (!readAtomPosition || !readAtomVelocity)){
 			line = reader.readLine().trim();	
 
@@ -281,7 +315,7 @@ public class LAMMPSIO {
 				readAtomPosition = true;
 
 			} else if (line.equals("Velocities")){
-				
+
 				//skip any empty lines
 				while (reader.ready()){
 					line = reader.readLine().trim();			
@@ -312,7 +346,7 @@ public class LAMMPSIO {
 				readAtomVelocity = true;
 			}
 		}
-		
+
 		if (!readAtomPosition || !readAtomVelocity){
 			reader.close();
 			throw new IOException("Unable to read atoms' positions or velocities.");
@@ -402,23 +436,23 @@ public class LAMMPSIO {
 	public int getNumOfAtoms(){
 		return numOfAtoms;
 	}
-	
+
 	public double getAtomPosition(int index, int comp){
 		return atomPosition[index][comp];
 	}
-	
+
 	public double getAtomVelocity(int index, int comp){
 		return atomVelocity[index][comp];
 	}
-	
+
 	public void setAtomType(int index, int type){
 		atomType[index] = type;
 	}
-	
+
 	public int getAtomType(int index){
 		return atomType[index];
 	}
-	
+
 	public int getAtomBoundaryCount(int index, int comp){
 		return atomBoundaryCount[index][comp];
 	}
@@ -433,7 +467,7 @@ public class LAMMPSIO {
 		}
 		return pairwiseDistance[index];
 	}
-	
+
 	public static void main (String [] args) throws IOException {
 		int numOfAtoms = Integer.parseInt(args[0]);
 		int typesOfAtoms = Integer.parseInt(args[1]);
