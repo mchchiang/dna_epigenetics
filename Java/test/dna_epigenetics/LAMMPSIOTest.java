@@ -13,7 +13,7 @@ public class LAMMPSIOTest {
 	@Test
 	public void testReadAtomData1_1() throws IOException {
 		LAMMPSIO io = new LAMMPSIO();
-		io.readAtomData("lammps_input_test1");
+		Polymer polymer = io.readAtomData("lammps_input_test1");
 		double [][] correctAtomPosition = new double [][] {
 				{8.0, 6.0, 5.0},
 				{-5.5, 12.0, -28.0},
@@ -27,7 +27,7 @@ public class LAMMPSIOTest {
 						"Return wrong position value for "
 						+ "component %d of atom %d.", (j+1), (i+1)), 
 						correctAtomPosition[i][j], 
-						io.getAtomPosition(i, j), tol);
+						polymer.getPosition(i, j), tol);
 			}
 		}
 	}
@@ -35,7 +35,7 @@ public class LAMMPSIOTest {
 	@Test
 	public void testReadAtomData1_2() throws IOException {
 		LAMMPSIO io = new LAMMPSIO();
-		io.readAtomData("lammps_input_test1");
+		Polymer polymer = io.readAtomData("lammps_input_test1");
 		double [][] correctAtomVelocity = new double [][] {
 				{3.0, 0.5, 4.0},
 				{6.0, 0.5, 2.5},
@@ -49,7 +49,7 @@ public class LAMMPSIOTest {
 						"Return wrong velocity value for "
 						+ "component %d of atom %d.", (j+1), (i+1)), 
 						correctAtomVelocity[i][j], 
-						io.getAtomVelocity(i, j), tol);
+						polymer.getVelocity(i, j), tol);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ public class LAMMPSIOTest {
 	@Test
 	public void testReadAtomData1_3() throws IOException {
 		LAMMPSIO io = new LAMMPSIO();
-		io.readAtomData("lammps_input_test1");
+		Polymer polymer = io.readAtomData("lammps_input_test1");
 		int [][] correctAtomBoundaryCount = new int [][] {
 				{0, 1, 0},
 				{0, -1, -1},
@@ -71,7 +71,7 @@ public class LAMMPSIOTest {
 						"Return wrong boundary count value for "
 						+ "component %d of atom %d.", (j+1), (i+1)), 
 						correctAtomBoundaryCount[i][j], 
-						io.getAtomBoundaryCount(i, j));
+						polymer.getBoundaryCount(i, j));
 			}
 		}
 	}
@@ -79,20 +79,20 @@ public class LAMMPSIOTest {
 	@Test
 	public void testReadAtomData1_4() throws IOException {
 		LAMMPSIO io = new LAMMPSIO();
-		io.readAtomData("lammps_input_test1");
+		Polymer polymer = io.readAtomData("lammps_input_test1");
 		int [] correctAtomType = new int [] {2, 2, 2, 1, 1};
 		for (int i = 0; i < correctAtomType.length; i++){
 			assertEquals(String.format(
 					"Return wrong type value for atom %d.", 
-					(i+1)), correctAtomType[i], io.getAtomType(i));
+					(i+1)), correctAtomType[i], polymer.getType(i));
 		}
 	}
 	
 	@Test
 	public void testComputePairwiseDistance1() throws IOException {
 		LAMMPSIO io = new LAMMPSIO();
-		io.readAtomData("lammps_input_test1");
-		io.computePairwiseDistance();
+		Polymer polymer = io.readAtomData("lammps_input_test1");
+		polymer.computePairwiseDistance();
 		double [][] correctPairwiseDistance = new double [][]{
 				{-1, 119.6129174, 46.48924607, 64.32923130, 45.08880127},
 				{119.6129174, -1, 95.61119181, 101.0964886, 94.02792139},
@@ -105,7 +105,7 @@ public class LAMMPSIOTest {
 				assertEquals(String.format(
 						"Return wrong pairwise distance between atom %d and %d.", 
 						(i+1), (j+1)), 	correctPairwiseDistance[i][j], 
-						io.getPairwiseDistance(i, j), tol);
+						polymer.getPairwiseDistance(i, j), tol);
 			}
 		}
 	}

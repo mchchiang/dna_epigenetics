@@ -1,10 +1,9 @@
 package dna_epigenetics;
 
 import java.io.*;
-import java.util.Random;
 
 public class LAMMPSIO {
-	private int numOfAtoms;
+	/*private int numOfAtoms;
 	private final int dimension = 3;
 	private double lx, ly, lz;
 	private double [][] atomPosition;
@@ -12,15 +11,15 @@ public class LAMMPSIO {
 	private int [][] atomBoundaryCount;
 	private int [] atomType;
 	private double [] pairwiseDistance;
-	private int typesOfAtoms;
-	private boolean readData = false;
-	private boolean computedPairwiseDistance = false;
-	private final double pi = Math.PI;
+	private int typesOfAtoms;*/
+	//private boolean readData = false;
+	//private boolean computedPairwiseDistance = false;
+	//private final double pi = Math.PI;
 
 	private String header = 
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 
-	public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
+	/*public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
 			double lx, double ly, double lz, int seed, int type,
 			String staticType, double staticFraction, int clusterSize){
 		this.numOfAtoms = numOfAtoms;
@@ -199,18 +198,25 @@ public class LAMMPSIO {
 		if (pos < numOfAtoms){
 			atomType[pos] = type;
 		}
-	}
+	}*/
 
-	public void readAtomData(String filename) throws IOException {	
+	public Polymer readAtomData(String filename) throws IOException {	
 		System.out.println("Started reading");
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		header = reader.readLine();
 
 		String line;
 		String [] args;
-
+		
+		int numOfAtoms = 0;
+		int typesOfAtoms = 0;
+		int dimension = 3;
+		double lx = 0.0; 
+		double ly = 0.0;
+		double lz = 0.0;
 		boolean readNumOfAtoms = false;
 		boolean readTypesOfAtoms = false;
+		
 		do {
 			line = reader.readLine().trim();
 			if (line.endsWith("atoms")){
@@ -265,12 +271,15 @@ public class LAMMPSIO {
 		//System.out.printf("Types of Atoms: %d\n", typesOfAtoms);
 		//System.out.printf("Box size:\n");
 		//System.out.printf("lx = %.5f\nly = %.5f\nlz = %.5f\n", lx, ly, lz);
-
-		atomPosition = new double [numOfAtoms][dimension];
+		
+		Polymer polymer = new Polymer(numOfAtoms, typesOfAtoms, 
+				dimension, lx, ly, lz);
+		
+		/*atomPosition = new double [numOfAtoms][dimension];
 		atomVelocity = new double [numOfAtoms][dimension];
 		atomBoundaryCount = new int [numOfAtoms][dimension];
 		atomType = new int [numOfAtoms];
-		pairwiseDistance = new double [numOfAtoms * (numOfAtoms-1) / 2];
+		pairwiseDistance = new double [numOfAtoms * (numOfAtoms-1) / 2];*/
 
 		boolean readAtomPosition = false;
 		boolean readAtomVelocity = false;
@@ -300,13 +309,13 @@ public class LAMMPSIO {
 					}
 
 					index = Integer.parseInt(args[0])-1;
-					atomType[index] = Integer.parseInt(args[2]);
-					atomPosition[index][0] = Double.parseDouble(args[3]);
-					atomPosition[index][1] = Double.parseDouble(args[4]);
-					atomPosition[index][2] = Double.parseDouble(args[5]);
-					atomBoundaryCount[index][0] = Integer.parseInt(args[6]);
-					atomBoundaryCount[index][1] = Integer.parseInt(args[7]);
-					atomBoundaryCount[index][2] = Integer.parseInt(args[8]);
+					polymer.setType(index, Integer.parseInt(args[2]));
+					polymer.setPosition(index, 0, Double.parseDouble(args[3]));
+					polymer.setPosition(index, 1, Double.parseDouble(args[4]));
+					polymer.setPosition(index, 2, Double.parseDouble(args[5]));
+					polymer.setBoundaryCount(index, 0, Integer.parseInt(args[6]));
+					polymer.setBoundaryCount(index, 1, Integer.parseInt(args[7]));
+					polymer.setBoundaryCount(index, 2, Integer.parseInt(args[8]));
 
 					if (reader.ready()) line = reader.readLine();
 					count++;
@@ -335,9 +344,9 @@ public class LAMMPSIO {
 					}
 
 					index = Integer.parseInt(args[0])-1;
-					atomVelocity[index][0] = Double.parseDouble(args[1]);
-					atomVelocity[index][1] = Double.parseDouble(args[2]);
-					atomVelocity[index][2] = Double.parseDouble(args[3]);
+					polymer.setVelocity(index, 0, Double.parseDouble(args[1]));
+					polymer.setVelocity(index, 1, Double.parseDouble(args[2]));
+					polymer.setVelocity(index, 2, Double.parseDouble(args[3]));
 
 					if (reader.ready()) line = reader.readLine();
 					count++;
@@ -352,15 +361,21 @@ public class LAMMPSIO {
 			throw new IOException("Unable to read atoms' positions or velocities.");
 		}
 
-		readData = true;
+		//readData = true;
 		reader.close();
 		System.out.println("Finished reading");
+		return polymer;
 	}
 
-	public void writeAtomData(String filename) throws IOException{
+	public void writeAtomData(String filename, Polymer polymer) throws IOException{
 		System.out.println("Started writing");
 		PrintWriter writer = new PrintWriter(
 				new BufferedWriter(new FileWriter(filename)));
+		int numOfAtoms = polymer.getNumOfAtoms();
+		int typesOfAtoms = polymer.getTypesOfAtoms();
+		double lx = polymer.getLx();
+		double ly = polymer.getLy();
+		double lz = polymer.getLz();
 		//write header section of LAMMPS input files
 		writer.println(header);
 		writer.println();
@@ -384,18 +399,22 @@ public class LAMMPSIO {
 		writer.printf("\nAtoms\n\n");
 		for (int i = 0; i < numOfAtoms; i++){
 			writer.printf("%d %d %d %.16f %.16f %.16f %d %d %d\n",
-					i+1, 1, atomType[i], 
-					atomPosition[i][0], atomPosition[i][1], atomPosition[i][2],
-					atomBoundaryCount[i][0], atomBoundaryCount[i][1],
-					atomBoundaryCount[i][2]);
+					i+1, 1, polymer.getType(i), 
+					polymer.getPosition(i,0), 
+					polymer.getPosition(i,1), 
+					polymer.getPosition(i,2),
+					polymer.getBoundaryCount(i,0), 
+					polymer.getBoundaryCount(i,1),
+					polymer.getBoundaryCount(i,2));
 		}
 
 		//print atoms' velocities
 		writer.printf("\nVelocities\n\n");
 		for (int i = 0; i < numOfAtoms; i++){
 			writer.printf("%d %.16f %.16f %.16f\n",
-					i+1, atomVelocity[i][0], 
-					atomVelocity[i][1], atomVelocity[i][2]);
+					i+1, polymer.getVelocity(i,0), 
+					polymer.getVelocity(i,1), 
+					polymer.getVelocity(i,2));
 		}
 
 		//print bond information
@@ -415,7 +434,7 @@ public class LAMMPSIO {
 		System.out.println("Finished writing");
 	}
 
-	public void computePairwiseDistance(){
+	/*public void computePairwiseDistance(){
 		int index = 0;
 		for (int i = 1; i < numOfAtoms; i++){
 			for (int j = 0; j < i; j++){
@@ -430,10 +449,10 @@ public class LAMMPSIO {
 			}
 		}
 		computedPairwiseDistance = true;
-	}
+	}*/
 
 	//accessor methods
-	public int getNumOfAtoms(){
+	/*public int getNumOfAtoms(){
 		return numOfAtoms;
 	}
 
@@ -455,9 +474,9 @@ public class LAMMPSIO {
 
 	public int getAtomBoundaryCount(int index, int comp){
 		return atomBoundaryCount[index][comp];
-	}
+	}*/
 
-	public double getPairwiseDistance(int atom1, int atom2){
+	/*public double getPairwiseDistance(int atom1, int atom2){
 		if (atom1 == atom2) return -1.0;
 		int index;
 		if (atom1 < atom2){
@@ -466,9 +485,9 @@ public class LAMMPSIO {
 			index = atom1 * (atom1-1) / 2 + atom2;
 		}
 		return pairwiseDistance[index];
-	}
+	}*/
 
-	public static void main (String [] args) throws IOException {
+	/*public static void main (String [] args) throws IOException {
 		int numOfAtoms = Integer.parseInt(args[0]);
 		int typesOfAtoms = Integer.parseInt(args[1]);
 		double lx = Double.parseDouble(args[2]);
@@ -484,5 +503,5 @@ public class LAMMPSIO {
 		io.generateAtomData(numOfAtoms, typesOfAtoms, 
 				lx, ly, lz, seed, type, staticType,	fracStatic, clusterSize);
 		io.writeAtomData(file);
-	}
+	}*/
 }

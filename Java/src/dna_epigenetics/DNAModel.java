@@ -30,25 +30,25 @@ public class DNAModel {
 	
 	//coupling with LAMMPS
 	private boolean runWithLAMMPS = false;
-	private LAMMPSIO lammps = null;
+	private Polymer polymer = null;
 	
 	public DNAModel (int n, double ratio, double radius, int sweeps, int seed) {
 		this(n, ratio, radius, sweeps, seed, null);
 	}
 	
 	public DNAModel (int n, double ratio, double radius, 
-			int sweeps, int seed, LAMMPSIO lammps){	
+			int sweeps, int seed, Polymer polymer){	
 		this.n = n;
 		this.F = ratio;
 		this.alpha = F / (1 + F);
 		this.radius = radius; 
 		this.sweeps = sweeps;
 		this.seed = seed;
-		if (lammps == null){
+		if (polymer == null){
 			runWithLAMMPS = false;
 		} else {
 			runWithLAMMPS = true;
-			this.lammps = lammps;
+			this.polymer = polymer;
 		}
 		init();
 	}
@@ -81,9 +81,9 @@ public class DNAModel {
 	}
 	
 	//initialise the dna with specified states from lammps file
-	public void initState(LAMMPSIO lammps){
+	public void initState(Polymer polymer){
 		for (int i = 0; i < n; i++){		
-			int s = lammps.getAtomType(i)-1;
+			int s = polymer.getType(i)-1;
 			dna[i] = s;
 			numInState[s]++;
 		}
@@ -132,7 +132,7 @@ public class DNAModel {
 			do {
 				n2 = rand.nextInt(n);
 				if (runWithLAMMPS){
-					distance = lammps.getPairwiseDistance(n1, n2);
+					distance = polymer.getPairwiseDistance(n1, n2);
 				}
 			} while (n2 == n1 || distance > radius);
 			recruitConversion(n1, n2);
@@ -218,8 +218,8 @@ public class DNAModel {
 		return numInState[2];
 	}
 	
-	public LAMMPSIO getLAMMPS(){
-		return lammps;
+	public Polymer getPolymer(){
+		return polymer;
 	}
 	
 	public double getG(){
@@ -274,30 +274,31 @@ public class DNAModel {
 		
 		//init model from lammps
 		if (useLAMMPS){
+			Polymer polymer = null;
 			LAMMPSIO lammps = new LAMMPSIO();
 			try {
-				lammps.readAtomData(fileFromLAMMPS);	
+				polymer = lammps.readAtomData(fileFromLAMMPS);	
 			} catch (IOException e){
 				System.out.println("Problem reading input file from lammps!");
 				e.printStackTrace();
 			}
-			lammps.computePairwiseDistance();			
-			model = new DNAModel(n, ratio, radius, sweeps, seed, lammps);
+			polymer.computePairwiseDistance();			
+			model = new DNAModel(n, ratio, radius, sweeps, seed, polymer);
 			model.addListener(stateWriter);
 			model.addListener(statsWriter);	
 			model.addListener(posWriter);
 			if (randomStates){
 				model.initState();
 			} else {
-				model.initState(lammps);
+				model.initState(polymer);
 			}		
 			model.run();
 			//update atom types in lammps
 			for (int i = 0; i < n; i++){
-				lammps.setAtomType(i, model.getState(i)+1);
+				polymer.setType(i, model.getState(i)+1);
 			}
 			try {
-				lammps.writeAtomData(fileToLAMMPS);
+				lammps.writeAtomData(fileToLAMMPS, polymer);
 			} catch (IOException e){
 				System.out.println("Problem writing output file to lammps!");
 				e.printStackTrace();

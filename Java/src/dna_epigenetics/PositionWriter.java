@@ -26,17 +26,17 @@ public class PositionWriter extends DataWriter {
 		if (totalTime % printInt == 0){
 			writer.printf("%d\n", n);
 			writer.printf("Atoms. Timestep: %d\n", totalTime);
-			LAMMPSIO lammps = model.getLAMMPS();
+			Polymer polymer = model.getPolymer();
 			double x, y, z;
 			int xc, yc, zc;
 			int type;
 			for (int i = 0; i < n; i++){
-				x = lammps.getAtomPosition(i, 0);
-				y = lammps.getAtomPosition(i, 1);
-				z = lammps.getAtomPosition(i, 2);
-				xc = lammps.getAtomBoundaryCount(i, 0);
-				yc = lammps.getAtomBoundaryCount(i, 1);
-				zc = lammps.getAtomBoundaryCount(i, 2);
+				x = polymer.getPosition(i, 0);
+				y = polymer.getPosition(i, 1);
+				z = polymer.getPosition(i, 2);
+				xc = polymer.getBoundaryCount(i, 0);
+				yc = polymer.getBoundaryCount(i, 1);
+				zc = polymer.getBoundaryCount(i, 2);
 				type = model.getState(i);		
 				writer.printf("%s %.10f %.10f %.10f %d %d %d %d\n", 
 						getTypeSymbol(type), x, y, z, xc, yc, zc, type);
