@@ -44,13 +44,18 @@ do
 	    for ((run=$run_start;run<=$run_end;run+=1))
 	    do
 		echo "Creating kemograph for f = $f e = $e run = $run"
-		name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_phi_${phi}_nc_${nc}_t_${max_iter}_run_${run}"
-		statefile="${indir}/state_${name}.dat"
-		magdistfile="${outdir}/mag-dist_${name}.dat"
-		python ../../GetMagDistrb.py $N $statefile $magdistfile
+		name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_phi_${phi}_nc_${nc}_t_${max_iter}"
+		magdistfile="${outdir}/mag-dist_${name}_run_${run}.dat"
+		domainfile="${outdir}/domain_${name}_run_${run}.dat"
+		python ../../Domain.py $magdistfile $domainfile
 
 	    done
-
+	    
+	    avgfile="${outdir}/domain_${name}.dat"
+	    combinefile="${outdir}/domain.dat"
+	    python ../../GetAverage.py -1 0 -1 -1 $avgfile "${outdir}/domain_${name}_run_"*.dat
+	    data=$(cat $avgfile)
+	    echo "$phi $data" >> $combinefile
 	    phi=$(bc <<< "$phi + $phi_inc")
 
 	done

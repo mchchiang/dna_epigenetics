@@ -17,10 +17,8 @@ static_type=${13}  # configuration for static atoms (random, cluster, mixed)
 simtype=${14}      # collapse, swollen, or hysteresis
 dumpxyz=${15}      # dump or nodump
 dumpstate=${16}    # nostate or state
-exepath=${17}      # execution path (../Java/build/classes/)
-nproc=${18}        # number of processes to run with
-outdir=${19}       # output directory relative to current directory
-print_freq=${20}   # dump atoms' positions frequency (in Brownian time units)
+rundir=${17}       # main directory where the code will be run
+print_freq=${18}   # dump atoms' positions frequency (in Brownian time units)
 
 type_of_atoms=6  # types of atoms
 delta_t=0.01     # time step size in Brownian time units
@@ -30,6 +28,13 @@ print_freq=$(bc <<< "$print_freq/$delta_t")  # actual print frequency in simulat
 
 # generate a random seed for initialising dna and running lammps
 seed=$(python GetRandom.py 100000)
+
+# make execution directory
+rundir="${rundir}/run_${run}_f_${ratio}_e_${bond_energy}_phi_${frac_static}_nc_${cluster_size}"
+mkdir $rundir
+
+# copy execution code to run directory
+cp -r dna_epigenetics $rundir
 
 # generate the data/output file names
 name="L_${box_size}_N_${num_of_atoms}_f_${ratio}_e_${bond_energy}_rc_${cut_off}_phi_${frac_static}_nc_${cluster_size}_t_${tmax}_run_${run}"
@@ -50,11 +55,9 @@ if [ $dumpxyz != "nodump" ]; then
     pos_file="pos_${name}.dat"
 fi
 
-outdir="`pwd`/${outdir}"
-basedir=`pwd`
-
 # create the lammps command file based on template
-file="epi_${name}.lam"
+lammps_file="epi_${name}.lam"
+file="${rundir}/${lammps_file}"
 
 # choose template depending on initial conditions (collasped/swollen)
 if [ $simtype = "collapse" ]; then
@@ -85,7 +88,7 @@ sed -i -- "s/XYZFILE/${xyz_file}/g" $file
 sed -i -- "s/INITFILE/${init_file}/g" $file
 sed -i -- "s/INFILE/${in_file}/g" $file
 sed -i -- "s/OUTFILE/${out_file}/g" $file
-sed -i -- "s/LAMMPSFILE/${file}/g" $file
+sed -i -- "s/LAMMPSFILE/${lammps_file}/g" $file
 sed -i -- "s/STATEFILE/${state_file}/g" $file
 sed -i -- "s/STATSFILE/${stats_file}/g" $file
 sed -i -- "s/POSFILE/${pos_file}/g" $file
@@ -104,58 +107,27 @@ sed -i -- "s/EQUIL_TOTAL/${equil_total}/g" $file
 
 # set whether to dump xyz files
 dumpxyz_flag='#'
+
 #if [ $dumpxyz != "dump" ]; then
 #   dumpxyz_flag='#'
 #fi
+
 sed -i -- "s/DUMPFLAG/${dumpxyz_flag}/g" $file
-
-mv $file ${exepath}/$file
-
-cd ${exepath}
 
 # initialise dna strand (ordered/disordered)
 seed2=$(bc <<< "$seed+34987")
-#random_type="true"
-#if [ $order = "order" ]; then
-#    random_type="false"
-#else
-#    random_type="true"
-#fi
 
-java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $atom_type $static_type $frac_static $cluster_size $init_file
+java dna_epigenetics.LAMMPSIO $num_of_atoms $type_of_atoms $box_size $box_size $box_size $seed2 $atom_type $static_type $frac_static $cluster_size "${rundir}/${init_file}"
 
-# clear any previous entries in the state and stats file
+# clear any previous entries in the state, stats, and pos file
 if [ $state_file != "none" ]; then
-    > $state_file
+    > "${rundir}/${state_file}"
 fi
 
 if [ $stats_file != "none" ]; then
-    > $stats_file
+    > "${rundir}/${stats_file}"
 fi
 
-# run the simulation
-logfile="log_${name}.lammps"
-if (( $(bc <<< "$nproc == 1") )); then
-    lmp_serial -screen none -log $logfile -in $file
-else
-    mpirun -n $nproc -screen none lmp_mpi -log $logfile -in $file
+if [ $pos_file != "none" ]; then
+    > "${rundir}/${pos_file}"
 fi
-
-# write the thermo data
-python "${basedir}/GetThermoData.py" $logfile "${outdir}/${thermo_file}"
-
-# move other files to output directory
-if [ $state_file != "none" ]; then
-    mv $state_file "${outdir}/${state_file}"
-fi
-
-if [ $stats_file != "none" ]; then
-    mv $stats_file "${outdir}/${stats_file}"
-fi
-
-if [ $dumpxyz = "dump" ]; then
-#    mv $xyz_file "${outdir}/${xyz_file}"
-    mv $pos_file "${outdir}/${pos_file}"
-fi
-
-cd $PWD

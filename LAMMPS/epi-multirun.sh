@@ -2,8 +2,8 @@
 
 L=150
 N=1000
-phi=0.1 # fraction of static atoms
-nc=5 # cluster size
+phi=0.001 # fraction of static atoms
+nc=1 # cluster size
 f_start=$1
 f_end=$2
 f_inc=$3
@@ -14,11 +14,11 @@ rc=2.5
 max_run=$7
 run_shift=$8
 max_job=$9
-tmax=10000
+tmax=1000000
 teq=10000
 tcolour=10
 atom_type="0"
-static_type="cluster"
+static_type="single_a"
 sim_type="swollen"
 dumpxyz="dump"
 dumpstate="state"
@@ -26,13 +26,13 @@ exepath="./"
 outdir=${10}
 nohup=${11}
 nproc=1
-print_freq=100
+print_freq=1000
 
 cmd=()
 log=()
 jobid=1
 
-phi=$(printf "%.2f" $phi)
+phi=$(printf "%.3f" $phi)
 f=$f_start
 
 while (( $(bc <<< "$f <= $f_end") ))
@@ -47,8 +47,8 @@ do
 	    runid=$(bc <<< "$run + $run_shift")
 
 	    if [ $runid != 1 ]; then
-		dumpxyz="nodump"
-		dumpstate="nostate"
+		dumpxyz="dump"
+		dumpstate="state"
 	    fi
 	    
 	    cmd[$jobid]="bash epigenetics.sh ${L} ${N} ${f} ${e} ${rc} ${phi} ${nc} ${tcolour} ${tmax} ${teq} ${runid} ${atom_type} ${static_type} ${sim_type} ${dumpxyz} ${dumpstate} ${exepath} ${nproc} ${outdir} ${print_freq}"
