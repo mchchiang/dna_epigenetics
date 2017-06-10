@@ -288,7 +288,7 @@ public class LAMMPSIO {
 			line = reader.readLine().trim();	
 
 			//read in atoms' positions
-			if (line.equals("Atoms # angle")){
+			if (line.startsWith("Atoms")){
 
 				//skip any empty lines
 				while (reader.ready()){
