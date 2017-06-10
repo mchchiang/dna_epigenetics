@@ -173,10 +173,10 @@ public class Polymer {
 		} else if (type.equalsIgnoreCase("single_m")){
 			bookmark = new SingleBookmark(numOfAtoms/2-1, 6);
 		} else if (type.equalsIgnoreCase("band_a")){
-			int domainSize = 200;
 			int spacing = 10;
-			bookmark = new SingleDomain(numOfStatic+spacing/2, 
-					numOfAtoms/2-domainSize/2, spacing, 4);
+			int domainSize = numOfStatic*spacing;
+			bookmark = new SingleDomain(numOfStatic, 
+					numOfAtoms/2-domainSize/2+spacing/2, spacing, 4);
 		}
 		
 	}
