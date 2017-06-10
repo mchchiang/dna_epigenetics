@@ -42,7 +42,7 @@ do
 	echo "Doing average for e = ${e} f = ${f}"
 	
 #	for ((run=$run_start;run<=$run_end;run++))
-	for run in 1 2 3 4 5 6 7 8 10 11 12 13
+	for run in 10 11 12 13 15
 	do
 	    gyr_in="${indir}/gyr-mag_${name}_run_${run}.dat"
 	    gyr_out="${outdir}/hys-gyr_${name}_run_${run}.dat"
@@ -54,8 +54,8 @@ do
 	    
 	done
 
-	python $avgPyFile 0 1 3 -1 $gyr_avg "${outdir}/hys-gyr_${name}_run_"*.dat
-	python $avgPyFile 0 1 3 -1 $mag_avg "${outdir}/hys-mag_${name}_run_"*.dat
+	python $avgPyFile 0 1 -1 -1 $gyr_avg "${outdir}/hys-gyr_${name}_run_"*.dat
+	python $avgPyFile 0 1 -1 -1 $mag_avg "${outdir}/hys-mag_${name}_run_"*.dat
 
 	e=$(bc <<< "$e + $e_inc")
     done

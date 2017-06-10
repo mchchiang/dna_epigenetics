@@ -77,7 +77,6 @@ with open(data_file, "r") as f:
                 n = 0
                 if (abs(e - eend) < 0.0000001):
                     esign *= -1.0
-                print esign
                 e += (esign*einc)
 
 writer.close()

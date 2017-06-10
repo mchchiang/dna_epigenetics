@@ -50,7 +50,7 @@ int main(int argc, char * argv[]){
   
   int maxLength = 128;
   char line[maxLength];
-  int numCol = 4;
+  int numCol = 8;
   char * data[numCol];
   char * token;
   char delim[2] = " ";
@@ -71,6 +71,7 @@ int main(int argc, char * argv[]){
 	pos[site][2] = strtod(data[3], NULL);
 	
 	s = data[0];
+	printf("%d %s %.5f %.5f %.5f", count, s, pos[site][0], pos[site][1], pos[site][2]);
 	if (strcmp(s,"O") == 0 || strcmp(s,"H") == 0){
 	  mag[site] = 0;
 	} else if (strcmp(s,"N") == 0 || strcmp(s,"F") == 0){
@@ -78,6 +79,7 @@ int main(int argc, char * argv[]){
 	} else if (strcmp(s,"C") == 0 || strcmp(s,"S") == 0){
 	  mag[site] = 2;
 	}
+	printf("%d\n", mag[site]);
       }
       
       count++;

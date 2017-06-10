@@ -2,8 +2,8 @@
 
 # A script to combine the measured gyration radius and the magnetisation
 
-L=150
-N=1000
+L=100
+N=100
 rc=2.5
 
 f_start=$1
@@ -18,7 +18,7 @@ indir=$9
 outdir=${10}
 
 #max_iter=12000 #old format
-max_iter=3000000 #new format
+max_iter=1000000 #new format
 
 f=$f_start
 
@@ -32,8 +32,8 @@ do
     do
 	e=$(printf "%.2f" $e)
 	
-#	for ((run=$run_start;run<=$run_end;run+=1))
-	for run in 1 2 3 4 5 6 7 8 10 11 12 13
+	for ((run=$run_start;run<=$run_end;run+=1))
+#	for run in 10 11 12 13 15
 	do
 	    echo "Combining f = $f e = $e run = $run"
 	    name="L_${L}_N_${N}_f_${f}_e_${e}_rc_${rc}_t_${max_iter}_run_${run}"
