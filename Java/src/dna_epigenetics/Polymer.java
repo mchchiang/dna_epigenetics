@@ -175,7 +175,7 @@ public class Polymer {
 		} else if (type.equalsIgnoreCase("band_a")){
 			int domainSize = 200;
 			int spacing = 10;
-			bookmark = new SingleDomain(numOfStatic, 
+			bookmark = new SingleDomain(numOfStatic+spacing/2, 
 					numOfAtoms/2-domainSize/2, spacing, 4);
 		}
 		
@@ -215,7 +215,6 @@ public class Polymer {
 		double lx = Double.parseDouble(args[2]);
 		double ly = Double.parseDouble(args[3]);
 		double lz = Double.parseDouble(args[4]);
-		Polymer polymer = new Polymer(numOfAtoms, typesOfAtoms, 3, lx, ly, lz);
 		int seed = Integer.parseInt(args[5]);
 		int type = Integer.parseInt(args[6]);
 		String staticType = args[7];
@@ -223,6 +222,7 @@ public class Polymer {
 		int clusterSize = Integer.parseInt(args[9]);
 		String file = args[10];
 		LAMMPSIO io = new LAMMPSIO();
+		Polymer polymer = new Polymer(numOfAtoms, typesOfAtoms, 3, lx, ly, lz);
 		polymer.generate();
 		polymer.setBookmarkType(staticType, fracStatic, clusterSize);
 		polymer.generateType(type);
