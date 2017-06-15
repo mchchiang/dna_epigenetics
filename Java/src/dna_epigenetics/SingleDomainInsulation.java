@@ -35,7 +35,7 @@ public class SingleDomainInsulation implements Bookmark{
 		for (int i = 0; i < numOfInsulation; i++){
 			polymer.setType(startIndex-insulationPadding-numOfInsulation+i, 
 					insulationType);
-			polymer.setType(startIndex+(numOfStatic-1)*spacing+insulationPadding,
+			polymer.setType(startIndex+(numOfStatic-1)*spacing+insulationPadding+i,
 					insulationType);
 		}
 	}
