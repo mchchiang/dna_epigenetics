@@ -177,6 +177,14 @@ public class Polymer {
 			int domainSize = numOfStatic*spacing;
 			bookmark = new SingleDomain(numOfStatic, 
 					numOfAtoms/2-domainSize/2+spacing/2, spacing, 4);
+		} else if (type.equalsIgnoreCase("band_ins_a")){
+			int spacing = 10;
+			int domainSize = numOfStatic*spacing;
+			int padding = spacing/2;
+			int numOfInsulation = 50;
+			bookmark = new SingleDomainInsulation(numOfStatic, 
+					numOfAtoms/2-domainSize/2+padding, spacing, 4,
+					numOfInsulation, padding, 5);
 		}
 		
 	}
