@@ -18,8 +18,9 @@ public class GeneDesert implements Bookmark {
 		int index = 0;
 		do {
 			index += separation;
-			for (int i = index; i < index+blockLength || i < numOfAtoms; i++){
+			for (int i = 0; i < blockLength && index < numOfAtoms; i++){
 				polymer.setType(index, type);
+				index++;
 			}
 		} while (index < numOfAtoms);
 	}
