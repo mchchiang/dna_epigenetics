@@ -185,6 +185,11 @@ public class Polymer {
 			bookmark = new SingleDomainInsulation(numOfStatic, 
 					numOfAtoms/2-domainSize/2+padding, spacing, 4,
 					numOfInsulation, padding, 5);
+		} else if (type.equalsIgnoreCase("desert")){
+			int blockLength = clusterSize;
+			int numOfBlocks = numOfStatic/clusterSize;
+			int separation = (numOfAtoms-numOfStatic)/numOfBlocks;
+			bookmark = new GeneDesert(blockLength, separation, 5);
 		}
 		
 	}
