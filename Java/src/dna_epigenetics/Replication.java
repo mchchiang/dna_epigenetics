@@ -45,6 +45,7 @@ public class Replication {
 			j = rand.nextInt(removableBeads.size());	
 			index = removableBeads.remove(j);
 			polymer.setType(index, 2);
+			System.out.println(index);
 		}
 		
 		if (excision){
@@ -53,6 +54,7 @@ public class Replication {
 				j = rand.nextInt(staticBeads.size());
 				index = staticBeads.remove(j);
 				polymer.setType(index, 2);
+				System.out.println(index);
 			}
 		}
 			
