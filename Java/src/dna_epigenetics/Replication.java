@@ -7,43 +7,55 @@ import java.util.ArrayList;
 public class Replication {
 	public static void main (String [] args) throws IOException{
 		int numOfAtoms = Integer.parseInt(args[0]);
-		double staticFraction = Double.parseDouble(args[1]);
-		boolean excision = Boolean.parseBoolean(args[2]);
+		boolean excision = Boolean.parseBoolean(args[1]);
+		int numOfRemovableBookmarks = Integer.parseInt(args[2]);
 		String fileFromLAMMPS = args[3];
 		String fileToLAMMPS = args[4];
 		LAMMPSIO io = new LAMMPSIO();
 		Polymer polymer = io.readAtomData(fileFromLAMMPS);
 		Random rand = new Random();
-		int numOfStatic = (int) (staticFraction * numOfAtoms);
-		int total = (numOfAtoms-numOfStatic)/2;
 		
-		ArrayList<Integer> unmodifiable = new ArrayList<Integer>();
+		ArrayList<Integer> removableBeads = new ArrayList<Integer>();
+		ArrayList<Integer> staticBeads = new ArrayList<Integer>();
 		
-		if (!excision){
-			for (int i = 0; i < numOfAtoms; i++){
-				if (polymer.getType(i) > 3){
-					unmodifiable.add(i);
-				}
+		//Get the number of static beads
+		int numOfStatic = 0;
+		for (int i = 0; i < numOfAtoms; i++){
+			if (polymer.getType(i) <= 3){
+				removableBeads.add(i);
+			} else {
+				staticBeads.add(i);
+				numOfStatic++;
 			}
 		}
 		
+		int totalRemovable = (numOfAtoms - numOfStatic) / 2;
+
 		/*
 		 * Uncolour half of the modifiable beads to model a semi-conservative
 		 * replication process
 		 */
-		int index;
-		for (int i = 0; i < total; i++){
+		int j, index;
+		for (int i = 0; i < totalRemovable && 
+				removableBeads.size() > 0; i++){
 			/*
 			 * Randomly pick a bead that has not been modified to remove
 			 * its colour
 			 */
-			do {
-				index = rand.nextInt(numOfAtoms);	
-			} while (unmodifiable.contains(index));
-			System.out.println(index);
+			j = rand.nextInt(removableBeads.size());	
+			index = removableBeads.remove(j);
 			polymer.setType(index, 2);
-			unmodifiable.add(index);
 		}
+		
+		if (excision){
+			for (int i = 0; i < numOfRemovableBookmarks &&
+					staticBeads.size() > 0; i++){
+				j = rand.nextInt(staticBeads.size());
+				index = staticBeads.remove(j);
+				polymer.setType(index, 2);
+			}
+		}
+			
 		io.writeAtomData(fileToLAMMPS, polymer);
 	}
 }
