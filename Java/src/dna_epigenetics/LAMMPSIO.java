@@ -3,203 +3,11 @@ package dna_epigenetics;
 import java.io.*;
 
 public class LAMMPSIO {
-	/*private int numOfAtoms;
-	private final int dimension = 3;
-	private double lx, ly, lz;
-	private double [][] atomPosition;
-	private double [][] atomVelocity;
-	private int [][] atomBoundaryCount;
-	private int [] atomType;
-	private double [] pairwiseDistance;
-	private int typesOfAtoms;*/
-	//private boolean readData = false;
-	//private boolean computedPairwiseDistance = false;
-	//private final double pi = Math.PI;
-
+	
 	private String header = 
 			"LAMMPS data file from restart file: timestep = 0,\tprocs = 1";
 
-	/*public void generateAtomData(int numOfAtoms, int typesOfAtoms, 
-			double lx, double ly, double lz, int seed, int type,
-			String staticType, double staticFraction, int clusterSize){
-		this.numOfAtoms = numOfAtoms;
-		this.typesOfAtoms = typesOfAtoms;
-		this.lx = lx;
-		this.ly = ly;
-		this.lz = lz;
-
-		Random rand = new Random();
-
-		atomPosition = new double [numOfAtoms][dimension];
-		atomVelocity = new double [numOfAtoms][dimension];
-		atomBoundaryCount = new int [numOfAtoms][dimension];
-		atomType = new int [numOfAtoms];
-
-		//set the first atom's position to be at the origin
-		for (int i = 0; i < dimension; i++){
-			atomPosition[0][i] = 0.0;
-		}
-
-		double x, y, z, r, costheta, sintheta, phi;
-
-		for (int i = 1; i < numOfAtoms; i++){
-			do {
-				r = rand.nextDouble();
-				costheta = 1.0 - 2.0 * r;
-				sintheta = Math.sqrt(1 - costheta*costheta);
-				r = rand.nextDouble();
-				phi = 2.0 * pi * r;
-				x = atomPosition[i-1][0] + sintheta * Math.cos(phi);
-				y = atomPosition[i-1][1] + sintheta * Math.sin(phi);
-				z = atomPosition[i-1][2] + costheta;
-			} while (Math.abs(x) > lx/2.0 ||
-					Math.abs(y) > ly/2.0 || 
-					Math.abs(z) > lz/2.0);
-			atomPosition[i][0] = x;
-			atomPosition[i][1] = y;
-			atomPosition[i][2] = z;
-		}
-
-		generateAtomType(type, staticType, staticFraction, clusterSize);	
-	}
-
-	public void generateAtomType(
-			int type, String staticType, 
-			double staticFraction, int clusterSize){
-
-		//generate bookmarks
-		if (staticFraction > 0){
-			int numOfStatic = (int) (staticFraction * numOfAtoms);
-			if (staticType.equalsIgnoreCase("random")){
-				generateRandomBookmarks(numOfStatic, 1);
-			} else if (staticType.equalsIgnoreCase("cluster")){
-				generateClusterBookmarks(numOfStatic, clusterSize);
-			} else if (staticType.equalsIgnoreCase("mixed")){
-				generateMixedBookmarks(numOfStatic);
-			} else if (staticType.equalsIgnoreCase("domain_a")){
-				generateFixedDomains(numOfStatic, 10, 4);
-			} else if (staticType.equalsIgnoreCase("domain_m")){
-				generateFixedDomains(numOfStatic, 10, 6);
-			} else if (staticType.equalsIgnoreCase("single_a")){
-				generateSingleBookmark(numOfAtoms/2-1, 4);
-			} else if (staticType.equalsIgnoreCase("single_u")){
-				generateSingleBookmark(numOfAtoms/2-1, 5);
-			} else if (staticType.equalsIgnoreCase("single_m")){
-				generateSingleBookmark(numOfAtoms/2-1, 6);
-			}
-		}
-
-		//generate type for other atoms
-		Random rand = new Random();
-
-		//generate random types for the remaining atoms
-		if (type == 0){
-			for (int i = 0; i < numOfAtoms; i++){
-				if (atomType[i] < 4){
-					atomType[i] = rand.nextInt(3)+1;//3 normal atom types
-				} 
-			}
-
-			//generate a uniform type for the remaining atoms
-		} else if (type > 0 && type < 5){
-			if (type == 4){//randomly
-				type = rand.nextInt(3)+1;
-			}
-			for (int i = 0; i < numOfAtoms; i++){
-				if (atomType[i] < 4){
-					atomType[i] = type;
-				} 	
-			}
-		}
-	}
-
-	public void generateRandomBookmarks(int numOfStatic, int clusterSize){
-		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
-		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
-		int remain = numOfStatic;
-		boolean ok;
-		Random rand = new Random();
-		int site, type;
-		while (remain > 0){
-			if (clusterSize > remain) clusterSize = remain;
-			ok = false;
-			do {
-				site = rand.nextInt(numOfAtoms);	
-				if (site+clusterSize >= numOfAtoms){
-					continue;
-				}
-				ok = true;
-				for (int i = site; i < site+clusterSize; i++){
-					if (atomType[i] > 3){
-						ok = false;
-						break;
-					}
-				}
-			} while (!ok);
-			type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
-			for (int i = site; i < site+clusterSize; i++){
-				atomType[i] = type;
-				remain--;
-			}
-		}
-	}
-
-	public void generateClusterBookmarks(int numOfStatic, int clusterSize){
-		Random rand = new Random();
-		int type = 4 + rand.nextInt(2) * 2;//pick either state 4 or 6 (As or Ms)
-		generateClusterBookmarks(numOfStatic, clusterSize, type);
-	}
-
-	public void generateClusterBookmarks(int numOfStatic, int clusterSize, int type){
-		if (numOfStatic > numOfAtoms) numOfStatic = numOfAtoms;
-		if (clusterSize > numOfStatic) clusterSize = numOfStatic;
-		int spacing = numOfAtoms / numOfStatic;
-		int shift = spacing/2;
-		int toggle = 5 - type;
-		for (int i = 0; i < numOfStatic; i++){
-			atomType[i*spacing+shift] = type;
-			if ((i+1) % clusterSize == 0){
-				type += (toggle*2);
-				toggle *= -1;
-			}
-		}
-	}
-
-	public void generateFixedDomains(int numOfStatic, int numOfDomains, int type){
-		int domainSize = numOfAtoms / numOfDomains;
-		int bookmarksPerDomain = numOfStatic/numOfDomains;
-		int spacing = domainSize / bookmarksPerDomain;
-		boolean divisible = (domainSize % bookmarksPerDomain == 0);
-		int shift = spacing / 2;
-		int typeToggle = 5 - type;
-		int site;
-		int spaceToggle = 1;
-		for (int i = 0; i < numOfDomains; i++){
-			site = i * domainSize + shift;
-			for (int j = 0; j < bookmarksPerDomain; j++){
-				atomType[site] = type;
-				if (!divisible){
-					spacing += spaceToggle;
-					spaceToggle *= -1;	
-				}
-				site += spacing;
-			}
-			type += (typeToggle*2);
-			typeToggle *= -1;
-		}
-
-	}
-
-	public void generateMixedBookmarks(int numOfStatic){
-		generateClusterBookmarks(numOfStatic, 1);
-	}
-
-	public void generateSingleBookmark(int pos, int type){
-		if (pos < numOfAtoms){
-			atomType[pos] = type;
-		}
-	}*/
-
+	
 	public Polymer readAtomData(String filename) throws IOException {	
 		System.out.println("Started reading");
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
@@ -210,13 +18,22 @@ public class LAMMPSIO {
 		
 		int numOfAtoms = 0;
 		int typesOfAtoms = 0;
+		int numOfBonds = 0;
+		int typesOfBonds = 0;
+		int numOfAngles = 0;
+		int typesOfAngles = 0;
 		int dimension = 3;
 		double lx = 0.0; 
 		double ly = 0.0;
 		double lz = 0.0;
 		boolean readNumOfAtoms = false;
 		boolean readTypesOfAtoms = false;
+		boolean readNumOfBonds = false;
+		boolean readTypesOfBonds = false;
+		boolean readNumOfAngles = false;
+		boolean readTypesOfAngles = false;
 		
+		//read polymer info (atoms, bonds, angles)
 		do {
 			line = reader.readLine().trim();
 			if (line.endsWith("atoms")){
@@ -227,16 +44,34 @@ public class LAMMPSIO {
 				args = line.split("\\s+");
 				typesOfAtoms = Integer.parseInt(args[0]);
 				readTypesOfAtoms = true;
-			}		
+			} else if (line.endsWith("bonds")){
+				args = line.split("\\s+");
+				numOfBonds = Integer.parseInt(args[0]);
+				readNumOfBonds = true;
+			} else if (line.endsWith("bond types")){
+				args = line.split("\\s+");
+				typesOfBonds = Integer.parseInt(args[0]);
+				readTypesOfBonds = true;
+			} else if (line.endsWith("angles")){
+				args = line.split("\\s+");
+				numOfAngles = Integer.parseInt(args[0]);
+				readNumOfAngles = true;
+			} else if (line.endsWith("angle types")){
+				args = line.split("\\s+");
+				typesOfAngles = Integer.parseInt(args[0]);
+				readTypesOfAngles = true;
+			}
 		} while (!line.endsWith("xlo xhi") && reader.ready());
 
-		if (!readNumOfAtoms || !readTypesOfAtoms){
+		if (!readNumOfAtoms || !readTypesOfAtoms ||
+			!readNumOfBonds || !readTypesOfBonds ||
+			!readNumOfAngles || !readTypesOfAngles){
 			reader.close();
-			throw new IOException("Data file must specify number of atoms "
-					+ "and types of atoms.");
+			throw new IOException("Data file must specify number and types of"
+					+ "atoms, bonds, and angles.");
 		}
 
-		//read in box size
+		//read box size
 		boolean readLx = false;
 		boolean readLy = false;
 		boolean readLz = false;
@@ -266,28 +101,23 @@ public class LAMMPSIO {
 			throw new IOException("Data file must specify box size in all"
 					+ " three dimensions.");
 		}
-
-		//System.out.printf("Number of Atoms: %d\n", numOfAtoms);
-		//System.out.printf("Types of Atoms: %d\n", typesOfAtoms);
-		//System.out.printf("Box size:\n");
-		//System.out.printf("lx = %.5f\nly = %.5f\nlz = %.5f\n", lx, ly, lz);
 		
-		Polymer polymer = new Polymer(numOfAtoms, typesOfAtoms, 
+		Polymer polymer = new Polymer(numOfAtoms, typesOfAtoms, numOfBonds,
+				typesOfBonds, numOfAngles, typesOfAngles, 
 				dimension, lx, ly, lz);
-		
-		/*atomPosition = new double [numOfAtoms][dimension];
-		atomVelocity = new double [numOfAtoms][dimension];
-		atomBoundaryCount = new int [numOfAtoms][dimension];
-		atomType = new int [numOfAtoms];
-		pairwiseDistance = new double [numOfAtoms * (numOfAtoms-1) / 2];*/
 
 		boolean readAtomPosition = false;
 		boolean readAtomVelocity = false;
+		boolean readBond = false;
+		boolean readAngle = false;
 
-		while (reader.ready() && (!readAtomPosition || !readAtomVelocity)){
+		while (reader.ready() && 
+				(!readAtomPosition || !readAtomVelocity ||
+				 !readBond || !readAngle)){
+			
 			line = reader.readLine().trim();	
 
-			//read in atoms' positions
+			//read atoms' positions
 			if (line.startsWith("Atoms")){
 
 				//skip any empty lines
@@ -309,6 +139,7 @@ public class LAMMPSIO {
 					}
 
 					index = Integer.parseInt(args[0])-1;
+					polymer.setLabel(index, Integer.parseInt(args[1]));
 					polymer.setType(index, Integer.parseInt(args[2]));
 					polymer.setPosition(index, 0, Double.parseDouble(args[3]));
 					polymer.setPosition(index, 1, Double.parseDouble(args[4]));
@@ -323,6 +154,7 @@ public class LAMMPSIO {
 				} while (reader.ready() && count < numOfAtoms);
 				readAtomPosition = true;
 
+			//read atoms' velocities
 			} else if (line.equals("Velocities")){
 
 				//skip any empty lines
@@ -353,15 +185,76 @@ public class LAMMPSIO {
 
 				} while (reader.ready() && count < numOfAtoms);
 				readAtomVelocity = true;
+			
+			//read bond information
+			} else if (line.equals("Bonds")){
+				
+				//skip any empty lines
+				while (reader.ready()){
+					line = reader.readLine().trim();			
+					if (line.length() > 0) break;
+				}
+				
+				int index;
+				int count = 0;
+
+				do {
+					args = line.split("\\s+");
+
+					if (args.length < 4){
+						reader.close();
+						throw new IOException(
+								"Not enough arguments for each bond.");
+					}
+
+					index = Integer.parseInt(args[0])-1;
+					polymer.setBondLabel(index, Integer.parseInt(args[1]));
+					polymer.setBondStartAtom(index, Integer.parseInt(args[2]));
+					if (reader.ready()) line = reader.readLine();
+					count++;
+
+				} while (reader.ready() && count < numOfBonds);
+				readBond = true;
+				
+			//read angle information
+			} else if (line.equals("Angles")){
+				
+				//skip any empty lines
+				while (reader.ready()){
+					line = reader.readLine().trim();			
+					if (line.length() > 0) break;
+				}
+				
+				int index;
+				int count = 0;
+
+				do {
+					args = line.split("\\s+");
+
+					if (args.length < 4){
+						reader.close();
+						throw new IOException(
+								"Not enough arguments for each angle.");
+					}
+
+					index = Integer.parseInt(args[0])-1;
+					polymer.setAngleLabel(index, Integer.parseInt(args[1]));
+					polymer.setAngleStartAtom(index, Integer.parseInt(args[2]));
+					if (reader.ready()) line = reader.readLine();
+					count++;
+
+				} while (reader.ready() && count < numOfAngles);
+				readAngle = true;
 			}
 		}
 
-		if (!readAtomPosition || !readAtomVelocity){
+		if (!readAtomPosition || !readAtomVelocity ||
+			!readBond || !readAngle){
 			reader.close();
-			throw new IOException("Unable to read atoms' positions or velocities.");
+			throw new IOException("Unable to read atoms' positions "
+					+ "or velocities, or bonds or angles.");
 		}
 
-		//readData = true;
 		reader.close();
 		System.out.println("Finished reading");
 		return polymer;
@@ -373,6 +266,10 @@ public class LAMMPSIO {
 				new BufferedWriter(new FileWriter(filename)));
 		int numOfAtoms = polymer.getNumOfAtoms();
 		int typesOfAtoms = polymer.getTypesOfAtoms();
+		int numOfBonds = polymer.getNumOfBonds();
+		int typesOfBonds = polymer.getTypesOfBonds();
+		int numOfAngles = polymer.getNumOfAngles();
+		int typesOfAngles = polymer.getTypesOfAngles();
 		double lx = polymer.getLx();
 		double ly = polymer.getLy();
 		double lz = polymer.getLz();
@@ -381,10 +278,10 @@ public class LAMMPSIO {
 		writer.println();
 		writer.printf("%d atoms\n", numOfAtoms);
 		writer.printf("%d atom types\n", typesOfAtoms);
-		writer.printf("%d bonds\n", numOfAtoms-1);
-		writer.printf("%d bond types\n", 1);
-		writer.printf("%d angles\n", numOfAtoms-2);
-		writer.printf("%d angle types\n", 1);
+		writer.printf("%d bonds\n", numOfBonds);
+		writer.printf("%d bond types\n", typesOfBonds);
+		writer.printf("%d angles\n", numOfAngles);
+		writer.printf("%d angle types\n", typesOfAngles);
 		writer.println();
 		writer.printf("%.16f %.16f xlo xhi\n", -lx/2.0, lx/2.0);
 		writer.printf("%.16f %.16f ylo yhi\n", -ly/2.0, ly/2.0);
@@ -399,7 +296,8 @@ public class LAMMPSIO {
 		writer.printf("\nAtoms\n\n");
 		for (int i = 0; i < numOfAtoms; i++){
 			writer.printf("%d %d %d %.16f %.16f %.16f %d %d %d\n",
-					i+1, 1, polymer.getType(i), 
+					i+1, polymer.getLabel(i),
+					polymer.getType(i), 
 					polymer.getPosition(i,0), 
 					polymer.getPosition(i,1), 
 					polymer.getPosition(i,2),
@@ -419,89 +317,23 @@ public class LAMMPSIO {
 
 		//print bond information
 		writer.printf("\nBonds\n\n");
-		for (int i = 1; i <= numOfAtoms-1; i++){
+		int startAtom;
+		for (int i = 0; i < numOfBonds; i++){
+			startAtom = polymer.getBondStartAtom(i);
 			writer.printf("%d %d %d %d\n",
-					i, 1, i, i+1);
+					i+1, polymer.getBondLabel(i), 
+					startAtom, startAtom+1);
 		}
 
 		//print angle information
 		writer.printf("\nAngles\n\n");
-		for (int i = 1; i <= numOfAtoms-2; i++){
+		for (int i = 0; i < numOfAngles; i++){
+			startAtom = polymer.getAngleStartAtom(i);
 			writer.printf("%d %d %d %d %d\n",
-					i, 1, i, i+1, i+2);
+					i+1, polymer.getAngleLabel(i), 
+					startAtom, startAtom+1, startAtom+2);
 		}
 		writer.close();
 		System.out.println("Finished writing");
 	}
-
-	/*public void computePairwiseDistance(){
-		int index = 0;
-		for (int i = 1; i < numOfAtoms; i++){
-			for (int j = 0; j < i; j++){
-				pairwiseDistance[index] = Vector.distance(
-						atomPosition[i][0] + lx * atomBoundaryCount[i][0], 
-						atomPosition[i][1] + ly * atomBoundaryCount[i][1], 
-						atomPosition[i][2] + lz * atomBoundaryCount[i][2],
-						atomPosition[j][0] + lx * atomBoundaryCount[j][0], 
-						atomPosition[j][1] + ly * atomBoundaryCount[j][1],
-						atomPosition[j][2] + lz * atomBoundaryCount[j][2]);
-				index++;
-			}
-		}
-		computedPairwiseDistance = true;
-	}*/
-
-	//accessor methods
-	/*public int getNumOfAtoms(){
-		return numOfAtoms;
-	}
-
-	public double getAtomPosition(int index, int comp){
-		return atomPosition[index][comp];
-	}
-
-	public double getAtomVelocity(int index, int comp){
-		return atomVelocity[index][comp];
-	}
-
-	public void setAtomType(int index, int type){
-		atomType[index] = type;
-	}
-
-	public int getAtomType(int index){
-		return atomType[index];
-	}
-
-	public int getAtomBoundaryCount(int index, int comp){
-		return atomBoundaryCount[index][comp];
-	}*/
-
-	/*public double getPairwiseDistance(int atom1, int atom2){
-		if (atom1 == atom2) return -1.0;
-		int index;
-		if (atom1 < atom2){
-			index = atom2 * (atom2-1) / 2 + atom1;
-		} else {
-			index = atom1 * (atom1-1) / 2 + atom2;
-		}
-		return pairwiseDistance[index];
-	}*/
-
-	/*public static void main (String [] args) throws IOException {
-		int numOfAtoms = Integer.parseInt(args[0]);
-		int typesOfAtoms = Integer.parseInt(args[1]);
-		double lx = Double.parseDouble(args[2]);
-		double ly = Double.parseDouble(args[3]);
-		double lz = Double.parseDouble(args[4]);
-		int seed = Integer.parseInt(args[5]);
-		int type = Integer.parseInt(args[6]);
-		String staticType = args[7];
-		double fracStatic = Double.parseDouble(args[8]);
-		int clusterSize = Integer.parseInt(args[9]);
-		String file = args[10];
-		LAMMPSIO io = new LAMMPSIO();
-		io.generateAtomData(numOfAtoms, typesOfAtoms, 
-				lx, ly, lz, seed, type, staticType,	fracStatic, clusterSize);
-		io.writeAtomData(file);
-	}*/
 }

@@ -6,25 +6,53 @@ import java.util.Random;
 public class Polymer {
 	private int numOfAtoms;
 	private int typesOfAtoms;
+	private int numOfBonds;
+	private int typesOfBonds;
+	private int numOfAngles;
+	private int typesOfAngles;
 	private int dimension = 3;
 	private double [][] atomPosition;
 	private double [][] atomVelocity;
 	private int [][] atomBoundaryCount;
 	private int [] atomType;
+	private int [] atomLabel;
+	private int [] bondLabel;
+	private int [] bondStartAtom;
+	private int [] angleLabel;
+	private int [] angleStartAtom;
 	private double [] pairwiseDistance;
 	private double lx, ly, lz;
 	private final double pi = Math.PI;
 	private Bookmark bookmark;
+	
+	public Polymer (int numOfAtoms, int typesOfAtoms,
+					int dimension, double lx, double ly, double lz){
+		this(numOfAtoms, typesOfAtoms, numOfAtoms-1, 1, numOfAtoms-2, 
+			1, dimension, lx, ly, lz);
+	}
 
-	public Polymer (int numOfAtoms, int typesOfAtoms, int dimension, 
-			double lx, double ly, double lz){
+	public Polymer (int numOfAtoms, int typesOfAtoms, 
+					int numOfBonds, int typesOfBonds,
+					int numOfAngles, int typesOfAngles, 
+					int dimension, double lx, double ly, double lz){
 		this.numOfAtoms = numOfAtoms;
 		this.typesOfAtoms = typesOfAtoms;
+		this.numOfBonds = numOfBonds;
+		this.typesOfBonds = typesOfBonds;
+		this.numOfAngles = numOfAngles;
+		this.typesOfAngles = typesOfAngles;
 		this.dimension = dimension;
+		
 		atomPosition = new double [numOfAtoms][dimension];
 		atomVelocity = new double [numOfAtoms][dimension];
 		atomBoundaryCount = new int [numOfAtoms][dimension];
-		atomType = new int [numOfAtoms];
+		atomLabel = new int [numOfAtoms];
+		atomType = new int [numOfAtoms];	
+		bondLabel = new int [numOfBonds];
+		bondStartAtom = new int [numOfBonds];
+		angleLabel = new int [numOfAngles];
+		angleStartAtom = new int [numOfAngles];
+		
 		pairwiseDistance = new double [numOfAtoms * (numOfAtoms-1) / 2];
 		this.lx = lx;
 		this.ly = ly;
@@ -55,6 +83,14 @@ public class Polymer {
 		return atomBoundaryCount[index][dim];
 	}
 
+	public void setLabel(int index, int label){
+		atomLabel[index] = label;
+	}
+	
+	public int getLabel(int index){
+		return atomLabel[index];
+	}
+	
 	public void setType(int index, int value){
 		atomType[index] = value;
 	}
@@ -85,6 +121,54 @@ public class Polymer {
 
 	public double getLz(){
 		return lz;
+	}
+	
+	public void setBondLabel(int index, int label){
+		bondLabel[index] = label;
+	}
+	
+	public int getBondLabel(int index){
+		return bondLabel[index];
+	}
+	
+	public void setBondStartAtom(int index, int startAtomIndex){
+		bondStartAtom[index] = startAtomIndex;
+	}
+	
+	public int getBondStartAtom(int index){
+		return bondStartAtom[index];
+	}
+	
+	public int getNumOfBonds(){
+		return numOfBonds;
+	}
+	
+	public int getTypesOfBonds(){
+		return typesOfBonds;
+	}
+	
+	public void setAngleLabel(int index, int label){
+		angleLabel[index] = label;
+	}
+	
+	public int getAngleLabel(int index){
+		return angleLabel[index];
+	}
+	
+	public void setAngleStartAtom(int index, int startAtomIndex){
+		angleStartAtom[index] = startAtomIndex;
+	}
+	
+	public int getAngleStartAtom(int index){
+		return angleStartAtom[index];
+	}
+	
+	public int getNumOfAngles(){
+		return numOfAngles;
+	}
+	
+	public int getTypesOfAngles(){
+		return typesOfAngles;
 	}
 
 	public void computePairwiseDistance(){
