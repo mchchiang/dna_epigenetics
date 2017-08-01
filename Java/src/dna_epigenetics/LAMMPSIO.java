@@ -231,7 +231,7 @@ public class LAMMPSIO {
 				do {
 					args = line.split("\\s+");
 
-					if (args.length < 4){
+					if (args.length < 5){
 						reader.close();
 						throw new IOException(
 								"Not enough arguments for each angle.");
