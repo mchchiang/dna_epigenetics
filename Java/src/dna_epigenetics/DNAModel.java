@@ -124,17 +124,18 @@ public class DNAModel {
 		//step 1: select a random nucleosome
 		int n1 = rand.nextInt(n);
 		double p1 = rand.nextDouble();
-		double distance = 0.0;
+		
 		//step 2a: recruited conversion
 		if (p1 < alpha){
 			//pick another nucleosome site
 			int n2;
+			if (runWithLAMMPS){
+				int index = rand.nextInt(polymer.getNumOfPairedAtoms(n1));
+				n2 = polymer.getPairedAtom(n1, index);
+			} else
 			do {
 				n2 = rand.nextInt(n);
-				if (runWithLAMMPS){
-					distance = polymer.getPairwiseDistance(n1, n2);
-				}
-			} while (n2 == n1 || distance > radius);
+			} while (n2 == n1);
 			recruitConversion(n1, n2);
 		}
 		

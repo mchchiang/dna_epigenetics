@@ -1,6 +1,7 @@
 package dna_epigenetics;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Polymer {
@@ -21,6 +22,7 @@ public class Polymer {
 	private int [] angleLabel;
 	private int [] angleStartAtom;
 	private double [] pairwiseDistance;
+	private ArrayList<ArrayList<Integer>> pairedAtoms;
 	private double lx, ly, lz;
 	private final double pi = Math.PI;
 	private Bookmark bookmark;
@@ -52,6 +54,11 @@ public class Polymer {
 		bondStartAtom = new int [numOfBonds];
 		angleLabel = new int [numOfAngles];
 		angleStartAtom = new int [numOfAngles];
+		
+		pairedAtoms = new ArrayList<ArrayList<Integer>>(numOfAtoms);
+		for (int i = 0; i < numOfAtoms; i++){
+			pairedAtoms.add(new ArrayList<Integer>());
+		}
 		
 		pairwiseDistance = new double [numOfAtoms * (numOfAtoms-1) / 2];
 		this.lx = lx;
@@ -170,18 +177,28 @@ public class Polymer {
 	public int getTypesOfAngles(){
 		return typesOfAngles;
 	}
-
+	
 	public void computePairwiseDistance(){
+		computePairwiseDistance(0.0);
+	}
+
+	public void computePairwiseDistance(double cutoff){
+		double distance;
 		int index = 0;
 		for (int i = 1; i < numOfAtoms; i++){
 			for (int j = 0; j < i; j++){
-				pairwiseDistance[index] = Vector.distance(
+				distance = Vector.distance(
 						atomPosition[i][0] + lx * atomBoundaryCount[i][0], 
 						atomPosition[i][1] + ly * atomBoundaryCount[i][1], 
 						atomPosition[i][2] + lz * atomBoundaryCount[i][2],
 						atomPosition[j][0] + lx * atomBoundaryCount[j][0], 
 						atomPosition[j][1] + ly * atomBoundaryCount[j][1],
 						atomPosition[j][2] + lz * atomBoundaryCount[j][2]);
+				pairwiseDistance[index] = distance;
+				if (distance <= cutoff){
+					pairedAtoms.get(i).add(j);
+					pairedAtoms.get(j).add(i);
+				}
 				index++;
 			}
 		}
@@ -196,6 +213,14 @@ public class Polymer {
 			index = atom1 * (atom1-1) / 2 + atom2;
 		}
 		return pairwiseDistance[index];
+	}
+	
+	public int getNumOfPairedAtoms(int atomIndex){
+		return pairedAtoms.get(atomIndex).size();
+	}
+	
+	public int getPairedAtom(int atomIndex, int pairIndex){
+		return pairedAtoms.get(atomIndex).get(pairIndex);
 	}
 
 	public void generate(){
