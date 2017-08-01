@@ -53,6 +53,10 @@ public class PositionWriter extends DataWriter {
 		case 3: symbol = "H"; break;
 		case 4: symbol = "F"; break;
 		case 5: symbol = "S"; break;
+		case 6: symbol = "B"; break;
+		case 7: symbol = "Li"; break;
+		case 8: symbol = "Ag"; break;
+		case 9: symbol = "Ge"; break;
 		}
 		return symbol;
 	}
