@@ -17,7 +17,7 @@ public class DNAModel {
 	private int seed;
 	private int time;
 	private double radius;
-	private final int NUMOFSTATE = 6;
+	private final int NUMOFSTATE = 9;
 	
 	//observables
 	private int [] numInState;
