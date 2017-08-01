@@ -17,7 +17,7 @@ public class DNAModel {
 	private int seed;
 	private int time;
 	private double radius;
-	private final int NUMOFSTATE = 9;
+	private final int NUMOFSTATES = 9;
 	
 	//observables
 	private int [] numInState;
@@ -56,7 +56,7 @@ public class DNAModel {
 	public void init(){
 		rand = new Random();
 		dna = new int [n];
-		numInState = new int [NUMOFSTATE];
+		numInState = new int [NUMOFSTATES];
 		listeners = new ArrayList<DataListener>();
 	}
 	
@@ -130,13 +130,19 @@ public class DNAModel {
 			//pick another nucleosome site
 			int n2;
 			if (runWithLAMMPS){
-				int index = rand.nextInt(polymer.getNumOfPairedAtoms(n1));
-				n2 = polymer.getPairedAtom(n1, index);
-			} else
-			do {
-				n2 = rand.nextInt(n);
-			} while (n2 == n1);
-			recruitConversion(n1, n2);
+				int numOfPairedAtoms = polymer.getNumOfPairedAtoms(n1);
+				//no conversion if the atom does not have close neighbours
+				if (numOfPairedAtoms > 0){
+					n2 = polymer.getPairedAtom(n1, 
+							rand.nextInt(numOfPairedAtoms));
+					recruitConversion(n1, n2);
+				}	
+			} else {
+				do {
+					n2 = rand.nextInt(n);
+				} while (n2 == n1);
+				recruitConversion(n1, n2);
+			}
 		}
 		
 		//step 2b: noisy conversion
@@ -219,6 +225,14 @@ public class DNAModel {
 		return numInState[2];
 	}
 	
+	public int getNumInState(int state){
+		return numInState[state];
+	}
+	
+	public int getNumOfStates(){
+		return NUMOFSTATES;
+	}
+	
 	public Polymer getPolymer(){
 		return polymer;
 	}
@@ -227,6 +241,12 @@ public class DNAModel {
 		double m = numInState[2];
 		double a = numInState[0];
 		return (m-a)/(m+a);
+	}
+	
+	public double getM(){
+		double m = numInState[2];
+		double a = numInState[0];
+		return (double) (m-a)/(double) n;
 	}
 	
 	public static void main (String [] args) {
