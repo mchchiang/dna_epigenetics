@@ -283,7 +283,7 @@ public class DNAModel {
 				System.out.println("Problem reading input file from lammps!");
 				e.printStackTrace();
 			}
-			polymer.computePairwiseDistance();			
+			polymer.computePairwiseDistance(radius);			
 			model = new DNAModel(n, ratio, radius, sweeps, seed, polymer);
 			model.addListener(stateWriter);
 			model.addListener(statsWriter);	
