@@ -68,7 +68,7 @@ public class LAMMPSIO {
 			!readNumOfAngles || !readTypesOfAngles){
 			reader.close();
 			throw new IOException("Data file must specify number and types of"
-					+ "atoms, bonds, and angles.");
+					+ " atoms, bonds, and angles.");
 		}
 
 		//read box size
@@ -333,6 +333,7 @@ public class LAMMPSIO {
 					i+1, polymer.getAngleLabel(i), 
 					startAtom, startAtom+1, startAtom+2);
 		}
+		writer.println();
 		writer.close();
 		System.out.println("Finished writing");
 	}
