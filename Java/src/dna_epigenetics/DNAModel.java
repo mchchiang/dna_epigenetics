@@ -284,7 +284,8 @@ public class DNAModel {
 		if (posFileName.equalsIgnoreCase("none")){
 			posWriter = new NullWriter();
 		} else {
-			posWriter = new PositionWriter(actualTime, printInt);
+			//posWriter = new PositionWriter(actualTime, printInt);
+			posWriter = new DrosophilaPositionWriter(actualTime, printInt);
 		}
 		
 		stateWriter.openWriter(stateFileName, true);
