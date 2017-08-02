@@ -371,7 +371,6 @@ public class LAMMPSIO {
 					i+1, polymer.getAngleLabel(i), 
 					startAtom, startAtom+1, startAtom+2);
 		}
-		writer.println();
 		writer.close();
 		System.out.println("Finished writing");
 	}
