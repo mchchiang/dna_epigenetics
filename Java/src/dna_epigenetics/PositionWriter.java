@@ -37,28 +37,29 @@ public class PositionWriter extends DataWriter {
 				xc = polymer.getBoundaryCount(i, 0);
 				yc = polymer.getBoundaryCount(i, 1);
 				zc = polymer.getBoundaryCount(i, 2);
-				type = model.getState(i);		
+				type = getFormattedState(model.getState(i));		
 				writer.printf("%s %.10f %.10f %.10f %d %d %d %d\n", 
-						getTypeSymbol(type), x, y, z, xc, yc, zc, type);
+						getFormattedSymbol(type), x, y, z, xc, yc, zc, type);
 			}
 		}
 	}
-
-	private String getTypeSymbol(int type){
-		String symbol = "";
-		switch (type){
-		case 0: symbol = "O"; break;
-		case 1: symbol = "N"; break;
-		case 2: symbol = "C"; break;	
-		case 3: symbol = "H"; break;
-		case 4: symbol = "F"; break;
-		case 5: symbol = "S"; break;
-		case 6: symbol = "B"; break;
-		case 7: symbol = "Li"; break;
-		case 8: symbol = "Ag"; break;
-		case 9: symbol = "Ge"; break;
-		}
-		return symbol;
+	
+	protected int getFormattedState(int state){
+		return state+1;
 	}
-
+	
+	protected String getFormattedSymbol(int state){
+		switch (state){
+		case 0: return "O";
+		case 1: return "N";
+		case 2: return "C";	
+		case 3: return "H";
+		case 4: return "F";
+		case 5: return "S";
+		case 6: return "B";
+		case 7: return "Li";
+		case 8: return "Ag";
+		}
+		return "";
+	}
 }
