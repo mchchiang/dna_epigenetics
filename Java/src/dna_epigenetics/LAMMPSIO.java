@@ -147,11 +147,20 @@ public class LAMMPSIO {
 					polymer.setBoundaryCount(index, 0, Integer.parseInt(args[6]));
 					polymer.setBoundaryCount(index, 1, Integer.parseInt(args[7]));
 					polymer.setBoundaryCount(index, 2, Integer.parseInt(args[8]));
-
-					if (reader.ready()) line = reader.readLine();
+					
 					count++;
-
-				} while (reader.ready() && count < numOfAtoms);
+					
+					if (reader.ready()){
+						line = reader.readLine();
+					} else {
+						break;
+					}
+				} while (count < numOfAtoms);
+				
+				if (count < numOfAtoms){
+					reader.close();
+					throw new IOException("Not enough atoms read.");
+				}
 				readAtomPosition = true;
 
 			//read atoms' velocities
@@ -179,11 +188,20 @@ public class LAMMPSIO {
 					polymer.setVelocity(index, 0, Double.parseDouble(args[1]));
 					polymer.setVelocity(index, 1, Double.parseDouble(args[2]));
 					polymer.setVelocity(index, 2, Double.parseDouble(args[3]));
-
-					if (reader.ready()) line = reader.readLine();
+					
 					count++;
 
-				} while (reader.ready() && count < numOfAtoms);
+					if (reader.ready()){
+						line = reader.readLine();
+					} else {
+						break;
+					}
+				} while (count < numOfAtoms);
+				
+				if (count < numOfAtoms){
+					reader.close();
+					throw new IOException("Not enough atoms' velocities read.");
+				}
 				readAtomVelocity = true;
 			
 			//read bond information
@@ -210,10 +228,20 @@ public class LAMMPSIO {
 					index = Integer.parseInt(args[0])-1;
 					polymer.setBondLabel(index, Integer.parseInt(args[1]));
 					polymer.setBondStartAtom(index, Integer.parseInt(args[2]));
-					if (reader.ready()) line = reader.readLine();
+					
 					count++;
-
-				} while (reader.ready() && count < numOfBonds);
+					
+					if (reader.ready()){
+						line = reader.readLine();
+					} else {
+						break;
+					}
+				} while (count < numOfBonds);
+				
+				if (count < numOfBonds){
+					reader.close();
+					throw new IOException("Not enough bonds read.");
+				}
 				readBond = true;
 				
 			//read angle information
@@ -240,10 +268,20 @@ public class LAMMPSIO {
 					index = Integer.parseInt(args[0])-1;
 					polymer.setAngleLabel(index, Integer.parseInt(args[1]));
 					polymer.setAngleStartAtom(index, Integer.parseInt(args[2]));
-					if (reader.ready()) line = reader.readLine();
+					
 					count++;
-
-				} while (reader.ready() && count < numOfAngles);
+					
+					if (reader.ready()){
+						line = reader.readLine();
+					} else {
+						break;
+					}
+				} while (count < numOfAngles);
+				
+				if (count < numOfAngles){
+					reader.close();
+					throw new IOException("Not enough angles read.");
+				}
 				readAngle = true;
 			}
 		}
