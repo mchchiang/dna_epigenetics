@@ -202,9 +202,6 @@ public class Polymer {
 				index++;
 			}
 		}
-		for (int i = 0; i < numOfAtoms; i++){
-			System.out.println(i + " " + pairedAtoms.get(i).size());
-		}
 	}
 	
 	public double getPairwiseDistance(int atom1, int atom2){
