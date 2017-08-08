@@ -44,8 +44,9 @@ public class Replication {
 			 */
 			j = rand.nextInt(removableBeads.size());	
 			index = removableBeads.remove(j);
-			polymer.setType(index, 2);
-			System.out.println(index);
+			
+			// Set the bead to a random colour (not just grey)
+			polymer.setType(index, rand.nextInt(3)+1);
 		}
 		
 		if (excision){
@@ -53,8 +54,7 @@ public class Replication {
 					staticBeads.size() > 0; i++){
 				j = rand.nextInt(staticBeads.size());
 				index = staticBeads.remove(j);
-				polymer.setType(index, 2);
-				System.out.println(index);
+				polymer.setType(index, rand.nextInt(3)+1);
 			}
 		}
 			
