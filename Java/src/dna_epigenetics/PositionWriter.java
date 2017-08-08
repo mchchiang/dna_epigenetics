@@ -29,7 +29,8 @@ public class PositionWriter extends DataWriter {
 			Polymer polymer = model.getPolymer();
 			double x, y, z;
 			int xc, yc, zc;
-			int type;
+			int state, type;
+			String symbol;
 			for (int i = 0; i < n; i++){
 				x = polymer.getPosition(i, 0);
 				y = polymer.getPosition(i, 1);
@@ -37,15 +38,18 @@ public class PositionWriter extends DataWriter {
 				xc = polymer.getBoundaryCount(i, 0);
 				yc = polymer.getBoundaryCount(i, 1);
 				zc = polymer.getBoundaryCount(i, 2);
-				type = getFormattedState(model.getState(i));		
+				state = model.getState(i);
+				type = getFormattedState(state);	
+				symbol = getFormattedSymbol(state);
 				writer.printf("%s %.10f %.10f %.10f %d %d %d %d\n", 
-						getFormattedSymbol(type), x, y, z, xc, yc, zc, type);
+						symbol, x, y, z, xc, yc, zc, type);
 			}
 		}
 	}
 	
 	protected int getFormattedState(int state){
-		return state+1;
+		//return state+1;
+		return state;
 	}
 	
 	protected String getFormattedSymbol(int state){
