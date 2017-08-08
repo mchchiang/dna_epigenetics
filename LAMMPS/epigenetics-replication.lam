@@ -1,0 +1,230 @@
+###################################################################
+# Reference paper:
+# K. Kremer and G. S. Grest
+# Dynamics of entangled linear polymer melts: A molecular-dynamics simulation
+# J Chem Phys 92, 5057 (1990)
+###################################################################
+
+# Box and units  (use LJ units and periodic boundaries)
+
+units lj
+
+atom_style angle #with stiffness
+
+boundary        p p p 
+
+###################################################################
+
+# Pair interactions require lists of neighbours to be calculated
+
+neighbor 1.9 bin #sets skin for neighbour list
+neigh_modify every 1 delay 1 check yes 
+
+###################################################################
+
+### Generate RESTART file, SPECIAL format, not a .txt file ###
+### Useful if simulation crashes ###
+restart 1000000 DNA.restart
+
+###################################################################
+
+# READ "start" data file
+read_data INITFILE
+
+###################################################################
+
+# reset timestep
+reset_timestep 0 
+
+###################################################################
+
+# Define groups
+
+group all type 1 2 3 4 5 6
+group A type 1
+group U type 2
+group M type 3
+group As type 4
+group Us type 5
+group Ms type 6
+
+###################################################################
+
+# Stiffness term
+#
+# E = K * (1+cos(theta)), K>0
+#
+# specify K
+
+angle_style   cosine
+angle_coeff   1 20.0
+
+###################################################################
+
+# Pair interaction between non-bonded atoms
+# use soft potential for equilibration
+# E = A*(1+cos(pi*r/rc)
+# specify A rc
+
+pair_style     soft 1.12246152962189
+pair_coeff * * 100.0 1.12246152962189
+
+###################################################################
+
+# Pair interaction between bonded atoms
+# use harmonic potential for equilibration
+# E = K*(r-r0)^2
+# specify K r0
+
+bond_style   harmonic 
+bond_coeff   1   100.0   1.1 
+
+###################################################################
+
+# Set up fixes
+
+fix 1 all   nve   ###NVE ensemble
+fix 2 all   langevin   1.0 1.0   1.0   267 ###Langevin integrator Tstart Tstop 1/friction rndseed
+
+###################################################################
+
+# set timestep of integrator
+
+timestep DELTAT
+
+###################################################################
+
+# run integration for a number of steps
+
+run EQUIL_SOFT
+
+###################################################################
+
+# equilibrate with fene potential and change dna stiffness
+
+angle_coeff   1 20.0
+
+pair_style      lj/cut 1.12246152962189
+pair_modify     shift yes
+pair_coeff      * * 1.0 1.0 1.12246152962189
+
+bond_style   fene
+
+special_bonds fene #<=== I M P O R T A N T (new command)
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+run EQUIL_FENE
+
+write_data OUTFILE nocoeff
+
+###################################################################
+###################################################################
+
+# now start epigentic modification
+
+variable restarttime equal 0
+variable btime equal (step*DELTAT)
+variable printtime equal (PRINTFREQ*DELTAT)
+variable seed equal SEED
+variable sweeps equal 1
+DUMPFLAGvariable posfile string "XYZFILE"
+
+DUMPFLAGshell > ${posfile}
+
+reset_timestep ${restarttime}
+
+###################################################################
+
+variable loopindex loop MAXITER
+
+label loop
+
+shell java dna_epigenetics.DNAModel NUMOFATOMS RATIO CUTOFF ${sweeps} RUN ${btime} false true OUTFILE INFILE STATEFILE STATSFILE ${printtime}
+
+clear
+
+units lj
+atom_style angle
+boundary        p p p 
+
+neighbor 0.3 bin 
+neigh_modify every 1 delay 1 check yes 
+ 
+read_data INFILE
+
+reset_timestep ${restarttime}
+
+group all type 1 2 3 4 5 6
+group A type 1
+group U type 2
+group M type 3
+group As type 4
+group Us type 5
+group Ms type 6
+
+DUMPFLAGdump 3 all xyz PRINTFREQ ${posfile}
+DUMPFLAGdump_modify 3 element O N C H F S append yes
+
+###################################################################
+
+# potentials to use
+
+angle_style   cosine
+angle_coeff   1 3.0
+
+pair_style      lj/cut 1.12246152962189
+
+pair_modify     shift yes
+
+# make nucleosomes of same epigentic state attractive with
+# each other (except if the nucleosome is unmodified)
+pair_coeff	* * 1.0 1.0 1.12246152962189
+pair_coeff      1 1 BONDENERGY 1.0 CUTOFF
+pair_coeff      3 3 BONDENERGY 1.0 CUTOFF
+pair_coeff	4 4 BONDENERGY 1.0 CUTOFF
+pair_coeff	6 6 BONDENERGY 1.0 CUTOFF
+pair_coeff	1 4 BONDENERGY 1.0 CUTOFF
+pair_coeff	3 6 BONDENERGY 1.0 CUTOFF
+
+bond_style   fene
+
+special_bonds fene
+
+bond_coeff   1   30.0   1.6   1.0   1.0
+
+###################################################################
+
+fix 1 all   nve  
+fix 2 all   langevin   1.0 1.0   1.0  ${seed}
+
+# quantities to compute/measure
+compute gyr all gyration
+
+timestep DELTAT
+
+###################################################################
+
+##### Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo PRINTFREQ
+thermo_style   custom   v_btime  temp  epair  emol  etotal press pxx pyy pzz  vol c_gyr
+
+###################################################################
+
+run COLOURSTEP
+
+write_data OUTFILE nocoeff
+
+variable restarttime equal (${restarttime}+COLOURSTEP)
+variable seed equal (${seed}+100)
+variable remainder equal (${restarttime} % REPLICATE_TIME)
+
+if "${remainder} == 0" then &
+   "shell java dna_epigenetics.Replication NUMOFATOMS FRACSTATIC EXCISION OUTFILE INFILE"
+
+read_data INFILE
+write_data OUTFILE
+
+next loopindex
+
+jump LAMMPSFILE loop
