@@ -48,7 +48,8 @@ public class PositionWriter extends DataWriter {
 	}
 	
 	protected int getFormattedState(int state){
-		return state+1;
+		//return state+1;
+		return state;
 	}
 	
 	protected String getFormattedSymbol(int state){

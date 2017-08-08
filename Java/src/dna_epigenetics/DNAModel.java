@@ -17,7 +17,8 @@ public class DNAModel {
 	private int seed;
 	private int time;
 	private double radius;
-	private final int NUMOFSTATES = 9;
+	//private final int NUMOFSTATES = 9;
+	private final int NUMOFSTATES = 6;
 	
 	//observables
 	private int [] numInState;
@@ -284,8 +285,8 @@ public class DNAModel {
 		if (posFileName.equalsIgnoreCase("none")){
 			posWriter = new NullWriter();
 		} else {
-			//posWriter = new PositionWriter(actualTime, printInt);
-			posWriter = new DrosophilaPositionWriter(actualTime, printInt);
+			posWriter = new PositionWriter(actualTime, printInt);
+			//posWriter = new DrosophilaPositionWriter(actualTime, printInt);
 		}
 		
 		stateWriter.openWriter(stateFileName, true);

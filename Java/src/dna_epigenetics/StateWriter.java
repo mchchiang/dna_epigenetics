@@ -25,7 +25,8 @@ public class StateWriter extends DataWriter {
 		if (totalTime % printInt == 0){
 			writer.printf("%d\n", totalTime);
 			for (int i = 0; i < n; i++){
-				writer.printf("%d %d\n", (i+1), model.getState(i)+1);
+			    //writer.printf("%d %d\n", (i+1), model.getState(i)+1);
+				writer.printf("%d %d\n", (i+1), model.getState(i));
 			}
 			writer.printf("\n");
 		}
