@@ -237,7 +237,8 @@ public class Polymer {
 		}
 
 		double x, y, z, r, costheta, sintheta, phi;
-
+		
+		//initialise polymer chain as a 3D random walk
 		for (int i = 1; i < numOfAtoms; i++){
 			do {
 				r = rand.nextDouble();
@@ -255,6 +256,18 @@ public class Polymer {
 			atomPosition[i][1] = y;
 			atomPosition[i][2] = z;
 		}	
+		
+		//initialise bond
+		for (int i = 0; i < numOfBonds; i++){
+		    bondLabel[i] = 1;
+		    bondStartAtom[i] = (i+1);
+		}
+		
+		//initialise angle
+		for (int i = 0; i < numOfAngles; i++){
+		    angleLabel[i] = 1;
+		    angleStartAtom[i] = (i+1);
+		}
 	}
 
 	public void setBookmarkType(String type, 
