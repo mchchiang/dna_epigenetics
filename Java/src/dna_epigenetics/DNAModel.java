@@ -111,15 +111,17 @@ public class DNAModel {
 	public void run(){
 		int i;
 		System.out.println("Started running model");
+		//for cases just to output polymer info without doing any sweeps
+		if (sweeps == 0){
+		    notifyListener();
+		}
 		for (time = 0; time < sweeps; time++){
 			for (i = 0; i < n; i++){
 				nextStep();
 			}
 			//measurements
-			//notifyListener();
+			notifyListener();
 		}
-		//measurements
-        notifyListener();
 		System.out.println("Finished running model");
 	}
 	
