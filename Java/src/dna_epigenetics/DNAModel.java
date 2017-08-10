@@ -116,8 +116,10 @@ public class DNAModel {
 				nextStep();
 			}
 			//measurements
-			notifyListener();
+			//notifyListener();
 		}
+		//measurements
+        notifyListener();
 		System.out.println("Finished running model");
 	}
 	
